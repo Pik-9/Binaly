@@ -1,13 +1,19 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.11)
 project(filalyzer)
-find_package(Qt4 REQUIRED)
 
-include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(Filalyzer_SRCS Filalyzer.cpp main.cpp)
+set(Filalyzer_SRCS src/Filalyzer.cpp src/main.cpp)
 
-qt4_automoc(${Filalyzer_SRCS})
-add_executable(filalyzer ${Filalyzer_SRCS})
-target_link_libraries(filalyzer ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+find_package(Qt5Widgets)
+add_executable(${PROJECT_NAME} ${Filalyzer_SRCS})
+if(${Qt5Widgets_FOUND})
+  qt5_use_modules(${PROJECT_NAME} Widgets)
+else(${Qt5Widgets_FOUND})
+  find_package(Qt4 REQUIRED)
+  include(${QT_USE_FILE})
+  target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
+endif(${Qt5Widgets_FOUND})
 
 install(TARGETS filalyzer RUNTIME DESTINATION bin)
