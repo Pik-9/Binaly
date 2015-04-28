@@ -41,7 +41,7 @@ void Hexfile::loadFile ()
   in.open (filepath, ios::in);
   unsigned char block[1024];
   register uint64_t counter = 0;
-  while (in)  {
+  while (in.peek () != (-1))  {
     Blockinfo bi;
     bi.begin = counter;
     in.read ((char*) block, 1024);
@@ -64,6 +64,20 @@ Blockinfo Hexfile::getBlockAt (const uint64_t position)
     }
   }
   return parts[RET_pos];
+}
+
+vector<char> Hexfile::getBlockDataAt (const uint64_t position)
+{
+  Blockinfo bi = getBlockAt (position);
+  vector<char> RET (0);
+  fstream in;
+  in.open (filepath, ios::in);
+  in.seekg (bi.begin);
+  for (uint64_t ii = bi.begin; ii < bi.end; ++ii)  {
+    RET.push_back (in.get ());
+  }
+  in.close ();
+  return RET;
 }
 
 uint64_t Hexfile::filesize ()

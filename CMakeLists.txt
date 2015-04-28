@@ -4,7 +4,7 @@ project(filalyzer)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(Filalyzer_SRCS src/Filalyzer.cpp src/main.cpp src/HexFile.cpp src/BinaryBar.cpp)
+set(Filalyzer_SRCS src/Filalyzer.cpp src/main.cpp src/HexFile.cpp src/BinaryBar.cpp src/Histogram.cpp)
 
 find_package(Qt5Widgets)
 add_executable(${PROJECT_NAME} ${Filalyzer_SRCS})

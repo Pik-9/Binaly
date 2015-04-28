@@ -49,13 +49,21 @@ Filalyzer::Filalyzer ()
   overview_lyt->addWidget (l_other, 2, 3, 1, 1);
   overview_lyt->addWidget (l_pos, 3, 1, 1, 2);
   
-  l_hist = new QLabel (tr ("Block histogramm"));
+  /* Prepare the TabWidget that contains the histograms. */
+  hist_tabs = new QTabWidget (this);
+  hist_tabs->setTabPosition (QTabWidget::South);
+  dev_hist = new Histogram (hist_tabs);
+  hist_tabs->addTab (dev_hist, tr ("Byte histogram"));
+  
   l_edit = new QLabel (tr ("Hex editor for block"));
   
-  sp_sub->addWidget (l_hist);
+  sp_sub->addWidget (hist_tabs);
   sp_sub->addWidget (l_edit);
   sp_main->addWidget (overview_widget);
   sp_main->addWidget (sp_sub);
+  
+  sp_main->setStretchFactor (0, 1);
+  sp_main->setStretchFactor (1, 2);
   
   setCentralWidget (sp_main);
   
@@ -69,7 +77,8 @@ Filalyzer::~Filalyzer ()
 void Filalyzer::changeFilePosition (uint64_t newPos)
 {
   filePosition = newPos;
-  l_pos->setText (tr ("Current position: %1").arg (BinaryBar::sizeString (newPos)));
+  l_pos->setText (tr ("Current position: %1").arg (BinaryBar::sizeString (filePosition)));
+  dev_hist->loadData (filePosition);
 }
 
 void Filalyzer::openFile (QString filePath)
@@ -80,4 +89,5 @@ void Filalyzer::openFile (QString filePath)
   file = new Hexfile (filePath.toStdString ().c_str ());
   file->loadFile ();
   bar->setFileStream (file);
+  dev_hist->setFileStream (file);
 }

@@ -24,6 +24,7 @@ public:
   
   void loadFile ();
   Blockinfo getBlockAt (const uint64_t);
+  std::vector<char> getBlockDataAt (const uint64_t);
   
   uint64_t filesize ();
 };

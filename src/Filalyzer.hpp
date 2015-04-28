@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QFileDialog>
 #include <QMenu>
+#include <QTabWidget>
 
 #include "custom_comp.hpp"
 
@@ -32,6 +33,10 @@ private:
   QGridLayout *overview_lyt;
   BinaryBar *bar;
   QLabel *l_plain, *l_bin, *l_text, *l_other,*l_pos;
+  
+  /* The histogram widget */
+  QTabWidget *hist_tabs;
+  Histogram *dev_hist;
   
   /* Just placeholders. */
   QLabel *l_hist, *l_edit;

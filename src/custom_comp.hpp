@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QPaintEvent>
 
+#include <vector>
+
 #include "HexFile.hpp"
 
 class BinaryBar : public QWidget
@@ -33,6 +35,24 @@ protected:
   
 signals:
   void filePosChanged (uint64_t);
+};
+
+class Histogram : public QWidget
+{
+private:
+  std::vector<unsigned int> deviation;
+  Hexfile *stream;
+  
+public:
+  Histogram (QWidget *parent = 0);
+  virtual ~Histogram ();
+  
+  void setFileStream (Hexfile*);
+  
+  virtual void loadData (const uint64_t);
+  
+protected:
+  void paintEvent (QPaintEvent*);
 };
 
 #endif
