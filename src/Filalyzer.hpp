@@ -36,7 +36,7 @@ private:
   
   /* The histogram widget */
   QTabWidget *hist_tabs;
-  Histogram *dev_hist;
+  Histogram *dev_hist, *fourier_hist;
   
   /* Just placeholders. */
   QLabel *l_hist, *l_edit;

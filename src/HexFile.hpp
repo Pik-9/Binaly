@@ -12,10 +12,17 @@ struct Blockinfo
   static void calculateValues (Blockinfo*, unsigned char*, const uint64_t);
 };
 
+/**
+ * \class EFilesizeExceeded
+ * \brief This exception is thrown when the filesize is exceeded.
+ */
+class EFilesizeExceeded {};
+
 class Hexfile
 {
 private:
   char *filepath;
+  uint64_t fsize;
   std::vector<Blockinfo> parts;
   
 public:

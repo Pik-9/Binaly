@@ -53,7 +53,9 @@ Filalyzer::Filalyzer ()
   hist_tabs = new QTabWidget (this);
   hist_tabs->setTabPosition (QTabWidget::South);
   dev_hist = new Histogram (hist_tabs);
+  fourier_hist = new FourierSheet (hist_tabs);
   hist_tabs->addTab (dev_hist, tr ("Byte histogram"));
+  hist_tabs->addTab (fourier_hist, tr ("Fourier transform"));
   
   l_edit = new QLabel (tr ("Hex editor for block"));
   
@@ -79,6 +81,7 @@ void Filalyzer::changeFilePosition (uint64_t newPos)
   filePosition = newPos;
   l_pos->setText (tr ("Current position: %1").arg (BinaryBar::sizeString (filePosition)));
   dev_hist->loadData (filePosition);
+  fourier_hist->loadData (filePosition);
 }
 
 void Filalyzer::openFile (QString filePath)

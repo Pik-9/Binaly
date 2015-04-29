@@ -39,20 +39,45 @@ signals:
 
 class Histogram : public QWidget
 {
-private:
+  Q_OBJECT
+protected:
   std::vector<unsigned int> deviation;
   Hexfile *stream;
   
+  /* The column the cursor currently points to. */
+  signed int currentColumn;
+  
+  Histogram *daughter;
+  
 public:
   Histogram (QWidget *parent = 0);
+  Histogram (Histogram&);
   virtual ~Histogram ();
   
   void setFileStream (Hexfile*);
   
   virtual void loadData (const uint64_t);
+  virtual QString currentColStr ();
   
 protected:
   void paintEvent (QPaintEvent*);
+  void mousePressEvent (QMouseEvent*);
+  void mouseMoveEvent (QMouseEvent*);
+};
+
+class FourierSheet : public Histogram
+{
+  Q_OBJECT
+public:
+  FourierSheet (QWidget *parent = 0);
+  FourierSheet (Histogram&);
+  virtual ~FourierSheet ();
+  
+  void loadData (const uint64_t);
+  QString currentColStr ();
+  
+protected:
+  void mousePressEvent (QMouseEvent*);
 };
 
 #endif

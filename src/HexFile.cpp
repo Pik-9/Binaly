@@ -51,6 +51,7 @@ void Hexfile::loadFile ()
     parts.push_back (bi);
   }
   in.close ();
+  fsize = counter;
 }
 
 Blockinfo Hexfile::getBlockAt (const uint64_t position)
@@ -62,6 +63,8 @@ Blockinfo Hexfile::getBlockAt (const uint64_t position)
         break;
       }
     }
+  } else  {
+    throw EFilesizeExceeded ();
   }
   return parts[RET_pos];
 }
@@ -82,9 +85,5 @@ vector<char> Hexfile::getBlockDataAt (const uint64_t position)
 
 uint64_t Hexfile::filesize ()
 {
-  uint64_t RET = 0;
-  if (parts.size () > 0)  {
-    RET = parts[parts.size () - 1].end;
-  }
-  return RET;
+  return fsize;
 }
