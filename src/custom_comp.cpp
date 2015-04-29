@@ -5,6 +5,7 @@
 #include <QDesktopWidget>
 
 #include <math.h>
+#include <complex>
 
 unsigned int BinaryBar::countSections = 4;
 
@@ -226,11 +227,11 @@ void Histogram::mouseMoveEvent (QMouseEvent* event)
 /*****************************************************************************/
 
 FourierSheet::FourierSheet (QWidget *parent)
-  : Histogram (parent)
+  : Histogram (parent), real_four (0)
 {}
 
-FourierSheet::FourierSheet (Histogram& other)
-  : Histogram (other)
+FourierSheet::FourierSheet (FourierSheet& other)
+  : Histogram (other), real_four (other.real_four)
 {}
 
 FourierSheet::~FourierSheet ()
@@ -238,7 +239,23 @@ FourierSheet::~FourierSheet ()
 
 void FourierSheet::loadData (const uint64_t position)
 {
-  /* Fourier transform not implemented yet. */
+  std::vector<char> data = stream->getBlockDataAt (position);
+  real_four.clear ();
+  real_four.resize (data.size ());
+  
+  /* Do the discrete Fourier transform. */
+  register unsigned int j, k;
+  for (k = 0; k < real_four.size (); ++k)  {
+    real_four[k] = 0.0;
+    for (j = 0; j < data.size (); ++j)  {
+      double theta = -2.0 * M_PI * j * k / (double) data.size ();
+      std::complex<double> z = std::polar (1.0, theta) * (double) data[j];
+      /* We are only interested in |Re(z)|. */
+      real_four[k] += fabs (z.real ());
+    }
+  }
+  
+  repaint ();
 }
 
 QString FourierSheet::currentColStr ()
@@ -246,12 +263,46 @@ QString FourierSheet::currentColStr ()
   QString RET = tr ("No data");
   if (currentColumn != (-1))  {
     QString index_str = "";
-    index_str.setNum (currentColumn);
+    index_str.setNum (2.0 * M_PI / (currentColumn + 1));
     QString count_str = "";
-    count_str.setNum (deviation[currentColumn]);
+    count_str.setNum (real_four[currentColumn]);
     RET = tr ("F(f(%1)) = %2").arg (index_str).arg (count_str);
   }
   return RET;
+}
+
+void FourierSheet::paintEvent (QPaintEvent* event)
+{
+  QPainter pnt;
+  pnt.begin (this);
+  pnt.fillRect (rect (), Qt::white);
+  if (real_four.size ())  {
+    double columnWidth = (double) width () / real_four.size ();
+    
+    /* Search for maximum value */
+    double max = 0.0;
+    for (unsigned int ii = 0; ii < real_four.size (); ++ii)  {
+      if (real_four[ii] > max)  {
+        max = real_four[ii];
+      }
+    }
+    
+    pnt.setPen (Qt::blue);
+    for (unsigned int ii = 1; ii < real_four.size (); ++ii)  {
+      unsigned int x_1 = (ii - 1) * width () / real_four.size ();
+      unsigned int x_2 = ii * width () / real_four.size ();
+      unsigned int y_1 = real_four[ii - 1] * height () / max;
+      unsigned int y_2 = real_four[ii] * height () / max;
+      pnt.drawLine (x_1, y_1, x_2, y_2);
+    }
+    unsigned int red_x = currentColumn * width () / real_four.size ();
+    pnt.setPen (Qt::red);
+    pnt.drawLine (red_x, 0, red_x, height ());
+  } else  {
+    pnt.setPen (Qt::black);
+    pnt.drawText (rect (), Qt::AlignCenter, tr ("No data"));
+  }
+  pnt.end ();
 }
 
 void FourierSheet::mousePressEvent (QMouseEvent* event)
@@ -264,4 +315,11 @@ void FourierSheet::mousePressEvent (QMouseEvent* event)
   }
 }
 
-#include "custom_comp.moc"
+void FourierSheet::mouseMoveEvent (QMouseEvent* event)
+{
+  if (real_four.size ())  {
+    currentColumn = real_four.size () * event->x () / width ();
+  }
+  setToolTip (currentColStr ());
+  repaint ();
+}

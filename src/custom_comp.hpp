@@ -37,6 +37,8 @@ signals:
   void filePosChanged (uint64_t);
 };
 
+/*****************************************************************************/
+
 class Histogram : public QWidget
 {
   Q_OBJECT
@@ -65,19 +67,26 @@ protected:
   void mouseMoveEvent (QMouseEvent*);
 };
 
+/*****************************************************************************/
+
 class FourierSheet : public Histogram
 {
   Q_OBJECT
+protected:
+  std::vector<double> real_four;
+
 public:
   FourierSheet (QWidget *parent = 0);
-  FourierSheet (Histogram&);
+  FourierSheet (FourierSheet&);
   virtual ~FourierSheet ();
   
   void loadData (const uint64_t);
   QString currentColStr ();
   
 protected:
+  void paintEvent (QPaintEvent*);
   void mousePressEvent (QMouseEvent*);
+  void mouseMoveEvent (QMouseEvent*);
 };
 
 #endif

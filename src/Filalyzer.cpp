@@ -93,4 +93,5 @@ void Filalyzer::openFile (QString filePath)
   file->loadFile ();
   bar->setFileStream (file);
   dev_hist->setFileStream (file);
+  fourier_hist->setFileStream (file);
 }
