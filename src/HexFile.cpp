@@ -25,8 +25,9 @@ void Blockinfo::calculateValues (Blockinfo* block, unsigned char* buffer, const 
 Hexfile::Hexfile (const char* file)
   : parts (0)
 {
-  filepath = new char[strlen (file)];
+  filepath = new char[strlen (file) + 1];
   strcpy (filepath, file);
+  filepath[strlen (file)] = 0;
 }
 
 Hexfile::~Hexfile ()

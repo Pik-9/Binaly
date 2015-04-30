@@ -5,7 +5,6 @@
 #include <QDesktopWidget>
 
 #include <math.h>
-#include <complex>
 
 unsigned int BinaryBar::countSections = 4;
 
@@ -166,10 +165,10 @@ QString Histogram::currentColStr ()
   QString RET = tr ("No data");
   if (currentColumn != (-1))  {
     QString index_str = "";
-    index_str.setNum (currentColumn);
+    index_str.setNum (currentColumn, 16);
     QString count_str = "";
     count_str.setNum (deviation[currentColumn]);
-    RET = tr ("Byte #%1 has %2 elements.").arg (index_str).arg (count_str);
+    RET = tr ("%2 x Byte 0x%1").arg (index_str).arg (count_str);
   }
   return RET;
 }
@@ -195,7 +194,25 @@ void Histogram::paintEvent (QPaintEvent* event)
     for (unsigned int ii = 0; ii < deviation.size (); ++ii)  {
       col.setHeight (height () * deviation[ii] / max);
       col.moveBottomLeft (QPoint ((unsigned int) (ii * columnWidth), height ()));
-      QColor colColor = (ii == currentColumn ? Qt::red : Qt::blue);
+      QColor colColor;
+      
+      /* Draw the label */
+      if (ii == currentColumn)  {
+        colColor = Qt::red;
+        pnt.setPen (colColor);
+        QRect red_label;
+        red_label.setSize (QSize (100, 30));
+        if (currentColumn < deviation.size () / 2)  {
+          red_label.moveTopLeft (col.topLeft ());
+          red_label.setY (0);
+        } else  {
+          red_label.moveTopRight (col.topRight ());
+          red_label.setY (0);
+        }
+        pnt.drawText (red_label, currentColStr ());
+      } else  {
+        colColor = Qt::blue;
+      }
       pnt.fillRect (col, colColor);
     }
   } else  {
@@ -220,7 +237,6 @@ void Histogram::mouseMoveEvent (QMouseEvent* event)
   if (deviation.size () > 0)  {
     currentColumn = deviation.size () * event->x () / width ();
   }
-  setToolTip (currentColStr ());
   repaint ();
 }
 
@@ -250,8 +266,7 @@ void FourierSheet::loadData (const uint64_t position)
     for (j = 0; j < data.size (); ++j)  {
       double theta = -2.0 * M_PI * j * k / (double) data.size ();
       std::complex<double> z = std::polar (1.0, theta) * (double) data[j];
-      /* We are only interested in |Re(z)|. */
-      real_four[k] += fabs (z.real ());
+      real_four[k] += z;
     }
   }
   
@@ -263,10 +278,12 @@ QString FourierSheet::currentColStr ()
   QString RET = tr ("No data");
   if (currentColumn != (-1))  {
     QString index_str = "";
-    index_str.setNum (2.0 * M_PI / (currentColumn + 1));
-    QString count_str = "";
-    count_str.setNum (real_four[currentColumn]);
-    RET = tr ("F(f(%1)) = %2").arg (index_str).arg (count_str);
+    index_str.setNum (1.0 / (currentColumn + 1.0));
+    QString real_str = "";
+    real_str.setNum (real_four[currentColumn].real ());
+    QString imag_str = "";
+    imag_str.setNum (real_four[currentColumn].imag ());
+    RET = tr ("F(f(%1)) = %2 + %3i").arg (index_str).arg (real_str).arg (imag_str);
   }
   return RET;
 }
@@ -279,25 +296,75 @@ void FourierSheet::paintEvent (QPaintEvent* event)
   if (real_four.size ())  {
     double columnWidth = (double) width () / real_four.size ();
     
-    /* Search for maximum value */
-    double max = 0.0;
-    for (unsigned int ii = 0; ii < real_four.size (); ++ii)  {
-      if (real_four[ii] > max)  {
-        max = real_four[ii];
+    /* Search for maximum and minimum value */
+    double max = 0.0, min = 0.0;
+    register unsigned int ii;
+    for (ii = 1; ii < real_four.size (); ++ii)  {
+      if (real_four[ii].real () > max)  {
+        max = real_four[ii].real ();
+      }
+      if (real_four[ii].imag () > max)  {
+        max = real_four[ii].imag ();
+      }
+      
+      if (real_four[ii].real () < min)  {
+        min = real_four[ii].real ();
+      }
+      if (real_four[ii].imag () < min)  {
+        min = real_four[ii].imag ();
       }
     }
+    double range = max - min;
     
-    pnt.setPen (Qt::blue);
-    for (unsigned int ii = 1; ii < real_four.size (); ++ii)  {
+    /* Draw the X axes (y = 0) */
+    pnt.setPen (Qt::black);
+    unsigned int y_0 = height () + (min / range) * height ();
+    pnt.drawLine (0, y_0, width (), y_0);
+    
+    /* Draw the Fourier coefficients. */
+    for (ii = 1; ii < real_four.size (); ++ii)  {
+      /* Real part */
+      pnt.setPen (Qt::blue);
       unsigned int x_1 = (ii - 1) * width () / real_four.size ();
       unsigned int x_2 = ii * width () / real_four.size ();
-      unsigned int y_1 = real_four[ii - 1] * height () / max;
-      unsigned int y_2 = real_four[ii] * height () / max;
+      unsigned int y_1 = height () - (real_four[ii - 1].real () - min) * height () / range;
+      unsigned int y_2 = height () - (real_four[ii].real () - min) * height () / range;
+      pnt.drawLine (x_1, y_1, x_2, y_2);
+      
+      /* Imaginary part */
+      pnt.setPen (Qt::green);
+      y_1 = height () - (real_four[ii - 1].imag () - min) * height () / range;
+      y_2 = height () - (real_four[ii].imag () - min) * height () / range;
       pnt.drawLine (x_1, y_1, x_2, y_2);
     }
+    
+    /* Draw the red position line and it's value. */
     unsigned int red_x = currentColumn * width () / real_four.size ();
     pnt.setPen (Qt::red);
+    QRect red_label;
+    red_label.setSize (QSize (200, 30));
+    if (red_x < width () / 2)  {
+      red_label.moveTopLeft (QPoint (red_x, 0));
+    } else  {
+      red_label.moveTopRight (QPoint (red_x, 0));
+    }
     pnt.drawLine (red_x, 0, red_x, height ());
+    pnt.drawText (red_label, currentColStr ());
+    
+    /* Draw the key */
+    pnt.setPen (Qt::blue);
+    QRect key_rect;
+    key_rect.setSize (QSize (80, 20));
+    key_rect.moveTopRight (QPoint (width (), 0));
+    pnt.drawText (key_rect, tr ("Real"));
+    pnt.setPen (Qt::green);
+    key_rect.moveTopRight (QPoint (width (), 20));
+    pnt.drawText (key_rect, tr ("Imaginary"));
+    pnt.setPen (Qt::black);
+    key_rect.setHeight (40);
+    key_rect.setWidth (85);
+    key_rect.moveTopRight (QPoint (width (), 0));
+    pnt.drawRect (key_rect);
   } else  {
     pnt.setPen (Qt::black);
     pnt.drawText (rect (), Qt::AlignCenter, tr ("No data"));
@@ -320,6 +387,5 @@ void FourierSheet::mouseMoveEvent (QMouseEvent* event)
   if (real_four.size ())  {
     currentColumn = real_four.size () * event->x () / width ();
   }
-  setToolTip (currentColStr ());
   repaint ();
 }

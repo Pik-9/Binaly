@@ -5,6 +5,7 @@
 #include <QPaintEvent>
 
 #include <vector>
+#include <complex>
 
 #include "HexFile.hpp"
 
@@ -73,7 +74,7 @@ class FourierSheet : public Histogram
 {
   Q_OBJECT
 protected:
-  std::vector<double> real_four;
+  std::vector<std::complex < double > > real_four;
 
 public:
   FourierSheet (QWidget *parent = 0);
