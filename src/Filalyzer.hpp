@@ -11,6 +11,7 @@
 #include <QTabWidget>
 
 #include "custom_comp.hpp"
+#include "Hexedit.hpp"
 
 class Filalyzer : public QMainWindow
 {
@@ -35,11 +36,13 @@ private:
   QLabel *l_plain, *l_bin, *l_text, *l_other,*l_pos;
   
   /* The histogram widget */
+  QWidget *hist_widget;
+  QGridLayout *hist_lyt;
   QTabWidget *hist_tabs;
   Histogram *dev_hist, *fourier_hist;
   
-  /* Just placeholders. */
-  QLabel *l_hist, *l_edit;
+  /* The hexedit widget */
+  HexWidget *hexw;
 public:
   Filalyzer ();
   virtual ~Filalyzer ();

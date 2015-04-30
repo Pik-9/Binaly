@@ -2,6 +2,7 @@
 #include "HexFile.hpp"
 
 #include <QDesktopWidget>
+#include <QStatusBar>
 #include <QApplication>
 #include <QMenuBar>
 
@@ -48,24 +49,33 @@ Filalyzer::Filalyzer ()
   overview_lyt->addWidget (l_text, 2, 2, 1, 1);
   overview_lyt->addWidget (l_other, 2, 3, 1, 1);
   overview_lyt->addWidget (l_pos, 3, 1, 1, 2);
+  overview_widget->setMinimumHeight (250);
   
   /* Prepare the TabWidget that contains the histograms. */
-  hist_tabs = new QTabWidget (this);
+  hist_widget = new QWidget (this);
+  hist_lyt = new QGridLayout (hist_widget);
+  hist_tabs = new QTabWidget (hist_widget);
   hist_tabs->setTabPosition (QTabWidget::South);
   dev_hist = new Histogram (hist_tabs);
   fourier_hist = new FourierSheet (hist_tabs);
   hist_tabs->addTab (dev_hist, tr ("Byte histogram"));
   hist_tabs->addTab (fourier_hist, tr ("Fourier transform"));
+  hist_lyt->addWidget (hist_tabs, 0, 0, 1, 1);
   
-  l_edit = new QLabel (tr ("Hex editor for block"));
+  hexw = new HexWidget ();
   
-  sp_sub->addWidget (hist_tabs);
-  sp_sub->addWidget (l_edit);
+  sp_sub->addWidget (hist_widget);
+  sp_sub->addWidget (hexw);
   sp_main->addWidget (overview_widget);
   sp_main->addWidget (sp_sub);
   
   sp_main->setStretchFactor (0, 1);
   sp_main->setStretchFactor (1, 2);
+  
+  sp_sub->setStretchFactor (0, 1);
+  sp_sub->setStretchFactor (1, 1);
+  
+  statusBar ()->showMessage (tr ("Ready"));
   
   setCentralWidget (sp_main);
   
@@ -82,6 +92,7 @@ void Filalyzer::changeFilePosition (uint64_t newPos)
   l_pos->setText (tr ("Current position: %1").arg (BinaryBar::sizeString (filePosition)));
   dev_hist->loadData (filePosition);
   fourier_hist->loadData (filePosition);
+  hexw->loadData (filePosition);
 }
 
 void Filalyzer::openFile (QString filePath)
@@ -94,4 +105,7 @@ void Filalyzer::openFile (QString filePath)
   bar->setFileStream (file);
   dev_hist->setFileStream (file);
   fourier_hist->setFileStream (file);
+  hexw->setFileStream (file);
+  setWindowTitle (tr ("Filalyzer - %1").arg (filePath));
+  statusBar ()->showMessage (tr ("Loaded file %1").arg (filePath));
 }
