@@ -8,6 +8,13 @@ struct Blockinfo
 {
   uint64_t begin, end;
   double avrg, stddev;
+
+  /**
+   * \brief Only compare the begin and the end value.
+   * We're only interested in the position in the file.
+   */
+  bool operator== (const Blockinfo&);
+  bool operator!= (const Blockinfo&);
   
   static void calculateValues (Blockinfo*, unsigned char*, const uint64_t);
 };

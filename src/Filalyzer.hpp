@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QTabWidget>
+#include <QPushButton>
 
 #include "custom_comp.hpp"
 #include "Hexedit.hpp"
@@ -34,6 +35,7 @@ private:
   QGridLayout *overview_lyt;
   BinaryBar *bar;
   QLabel *l_plain, *l_bin, *l_text, *l_other,*l_pos;
+  QPushButton *prev_btn, *next_btn;
   
   /* The histogram widget */
   QWidget *hist_widget;
@@ -50,6 +52,8 @@ public:
 public slots:
   void changeFilePosition (uint64_t);
   void openFile (QString);
+  void prevKiB ();
+  void nextKiB ();
 };
 
 #endif // Filalyzer_H

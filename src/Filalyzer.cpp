@@ -38,17 +38,23 @@ Filalyzer::Filalyzer ()
   l_text = new QLabel (tr ("<font color='blue'>Text data</font>"));
   l_other = new QLabel (tr ("<font color='red'>Other data</font>"));
   l_pos = new QLabel (tr ("Current position: 0"));
+  prev_btn = new QPushButton (tr ("<= 1024"));
+  next_btn = new QPushButton (tr ("1024 =>"));
+  prev_btn->setEnabled (false);
+  next_btn->setEnabled (false);
   l_plain->setAlignment (Qt::AlignCenter);
   l_bin->setAlignment (Qt::AlignCenter);
   l_text->setAlignment (Qt::AlignCenter);
   l_other->setAlignment (Qt::AlignCenter);
   l_pos->setAlignment (Qt::AlignCenter);
-  overview_lyt->addWidget (bar, 0, 0, 2, 4);
-  overview_lyt->addWidget (l_plain, 2, 0, 1, 1);
-  overview_lyt->addWidget (l_bin, 2, 1, 1, 1);
-  overview_lyt->addWidget (l_text, 2, 2, 1, 1);
-  overview_lyt->addWidget (l_other, 2, 3, 1, 1);
-  overview_lyt->addWidget (l_pos, 3, 1, 1, 2);
+  overview_lyt->addWidget (bar, 0, 0, 2, 20);
+  overview_lyt->addWidget (l_plain, 2, 0, 1, 5);
+  overview_lyt->addWidget (l_bin, 2, 5, 1, 5);
+  overview_lyt->addWidget (l_text, 2, 10, 1, 5);
+  overview_lyt->addWidget (l_other, 2, 15, 1, 5);
+  overview_lyt->addWidget (prev_btn, 3, 4, 1, 4);
+  overview_lyt->addWidget (l_pos, 3, 8, 1, 4);
+  overview_lyt->addWidget (next_btn, 3, 12, 1, 4);
   overview_widget->setMinimumHeight (250);
   
   /* Prepare the TabWidget that contains the histograms. */
@@ -61,6 +67,7 @@ Filalyzer::Filalyzer ()
   hist_tabs->addTab (dev_hist, tr ("Byte histogram"));
   hist_tabs->addTab (fourier_hist, tr ("Fourier transform"));
   hist_lyt->addWidget (hist_tabs, 0, 0, 1, 1);
+  hist_widget->setMinimumWidth (300);
   
   hexw = new HexWidget ();
   
@@ -81,6 +88,8 @@ Filalyzer::Filalyzer ()
   
   connect (bar, SIGNAL (filePosChanged (uint64_t)), this, SLOT (changeFilePosition (uint64_t)));
   connect (fdia, SIGNAL (fileSelected (QString)), this, SLOT (openFile (QString)));
+  connect (prev_btn, SIGNAL (clicked ()), this, SLOT (prevKiB ()));
+  connect (next_btn, SIGNAL (clicked ()), this, SLOT (nextKiB ()));
 }
 
 Filalyzer::~Filalyzer ()
@@ -90,6 +99,8 @@ void Filalyzer::changeFilePosition (uint64_t newPos)
 {
   filePosition = newPos;
   l_pos->setText (tr ("Current position: %1").arg (BinaryBar::sizeString (filePosition)));
+  prev_btn->setEnabled (filePosition >= 1024);
+  next_btn->setEnabled ((file->filesize () - filePosition) >= 1024);
   dev_hist->loadData (filePosition);
   fourier_hist->loadData (filePosition);
   hexw->loadData (filePosition);
@@ -102,10 +113,23 @@ void Filalyzer::openFile (QString filePath)
   }
   file = new Hexfile (filePath.toStdString ().c_str ());
   file->loadFile ();
+  if (file->filesize () > 2048)  {
+    next_btn->setEnabled (true);
+  }
   bar->setFileStream (file);
   dev_hist->setFileStream (file);
   fourier_hist->setFileStream (file);
   hexw->setFileStream (file);
   setWindowTitle (tr ("Filalyzer - %1").arg (filePath));
   statusBar ()->showMessage (tr ("Loaded file %1").arg (filePath));
+}
+
+void Filalyzer::prevKiB ()
+{
+  bar->setPositionOnBar (filePosition -= 1024);
+}
+
+void Filalyzer::nextKiB ()
+{
+  bar->setPositionOnBar (filePosition += 1024);
 }

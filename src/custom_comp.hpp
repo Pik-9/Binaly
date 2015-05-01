@@ -24,6 +24,7 @@ public:
   void setFileStream (Hexfile*);
   
   uint64_t positionInFile (const unsigned int);
+  void setPositionOnBar (const uint64_t);
   
   static QString sizeString (const uint64_t);
   
@@ -33,6 +34,8 @@ public:
 protected:
   void paintEvent (QPaintEvent*);
   void mousePressEvent (QMouseEvent*);
+  void mouseMoveEvent (QMouseEvent*);
+  void mouseReleaseEvent (QMouseEvent*);
   
 signals:
   void filePosChanged (uint64_t);

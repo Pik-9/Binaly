@@ -6,6 +6,16 @@
 
 using namespace std;
 
+bool Blockinfo::operator== (const Blockinfo& other)
+{
+  return ((begin == other.begin) && (end == other.end));
+}
+
+bool Blockinfo::operator!= (const Blockinfo& other)
+{
+  return !(*this == other);
+}
+
 void Blockinfo::calculateValues (Blockinfo* block, unsigned char* buffer, const uint64_t buffer_length)
 {
   uint64_t sum_a = 0;
@@ -72,16 +82,28 @@ Blockinfo Hexfile::getBlockAt (const uint64_t position)
 
 vector<char> Hexfile::getBlockDataAt (const uint64_t position)
 {
-  Blockinfo bi = getBlockAt (position);
-  vector<char> RET (0);
-  fstream in;
-  in.open (filepath, ios::in);
-  in.seekg (bi.begin);
-  for (uint64_t ii = bi.begin; ii < bi.end; ++ii)  {
-    RET.push_back (in.get ());
+  static Blockinfo lastUsed;
+  static vector<char> lastUsedData (0);
+  
+  Blockinfo bi;
+  try  {
+    bi = getBlockAt (position);
+  } catch (EFilesizeExceeded& exc)  {
+    bi = parts[0];
   }
-  in.close ();
-  return RET;
+
+  if ((bi != lastUsed) || (!lastUsedData.size ()))  {
+    lastUsedData.clear ();
+    fstream in;
+    in.open (filepath, ios::in);
+    in.seekg (bi.begin);
+    for (uint64_t ii = bi.begin; ii < bi.end; ++ii)  {
+      lastUsedData.push_back (in.get ());
+    }
+    in.close ();
+    lastUsed = bi;
+  }
+  return lastUsedData;
 }
 
 uint64_t Hexfile::filesize ()

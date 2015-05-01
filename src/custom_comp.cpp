@@ -23,7 +23,14 @@ void BinaryBar::setFileStream (Hexfile* fstr)
 
 uint64_t BinaryBar::positionInFile (const unsigned int widget_x)
 {
-  return stream->filesize () * widget_x / width ();
+  return (stream->filesize () - 1) * widget_x / width ();
+}
+
+void BinaryBar::setPositionOnBar (const uint64_t filepos)
+{
+  currentPos = width () * filepos / stream->filesize ();
+  repaint ();
+  emit filePosChanged (filepos);
 }
 
 QString BinaryBar::sizeString (const uint64_t size)
@@ -106,6 +113,30 @@ void BinaryBar::mousePressEvent (QMouseEvent* event)
     currentPos = event->x ();
     emit filePosChanged (positionInFile (currentPos));
     repaint ();
+  }
+}
+
+void BinaryBar::mouseMoveEvent (QMouseEvent* event)
+{
+  if (stream)  {
+    signed int pos_x = event->x ();
+    if (pos_x < 0)  {
+      currentPos = 0;
+    } else if (pos_x > width ())  {
+      currentPos = width ();
+    } else  {
+      currentPos = pos_x;
+    }
+    setCursor (Qt::ClosedHandCursor);
+    repaint ();
+  }
+}
+
+void BinaryBar::mouseReleaseEvent (QMouseEvent* event)
+{
+  setCursor (Qt::ArrowCursor);
+  if (stream)  {
+    emit filePosChanged (positionInFile (currentPos));
   }
 }
 
@@ -270,6 +301,12 @@ void FourierSheet::loadData (const uint64_t position)
     }
   }
   
+  if (daughter)  {
+    daughter->hide ();
+    delete daughter;
+    daughter = new FourierSheet (*this);
+  }
+  
   repaint ();
 }
 
@@ -375,9 +412,6 @@ void FourierSheet::paintEvent (QPaintEvent* event)
 void FourierSheet::mousePressEvent (QMouseEvent* event)
 {
   if (daughter)  {
-    daughter->hide ();
-    delete daughter;
-    daughter = new FourierSheet (*this);
     daughter->show ();
   }
 }
