@@ -9,7 +9,7 @@
 unsigned int BinaryBar::countSections = 4;
 
 BinaryBar::BinaryBar (QWidget *parent)
-  : QWidget (parent), stream (NULL), currentPos (0)
+  : QWidget (parent), stream (NULL), currentPos (0), colorStrip (0)
 {}
 
 BinaryBar::~BinaryBar ()
@@ -18,6 +18,7 @@ BinaryBar::~BinaryBar ()
 void BinaryBar::setFileStream (Hexfile* fstr)
 {
   stream = fstr;
+  drawColorStrip ();
   repaint ();
 }
 
@@ -31,6 +32,30 @@ void BinaryBar::setPositionOnBar (const uint64_t filepos)
   currentPos = width () * filepos / stream->filesize ();
   repaint ();
   emit filePosChanged (filepos);
+}
+
+void BinaryBar::drawColorStrip ()
+{
+  colorStrip.resize (width ());
+  if (stream)  {
+    register unsigned int pixel;
+    for (pixel = 0; pixel < width (); ++pixel)  {
+      Blockinfo bi = stream->getBlockAt (positionInFile (pixel));
+      if ((bi.avrg > 64.0) && (bi.stddev < 40.0))  {
+        /* This file section is a text section (blue) */
+        colorStrip[pixel] = Qt::blue;
+      } else if ((bi.avrg > 108.0) && (bi.avrg < 148.0) && (bi.stddev > 60.0) && (bi.stddev < 68.0))  {
+        /* This file section is a binary section (yellow) */
+        colorStrip[pixel] = Qt::darkYellow;
+      } else if (bi.stddev < 2.0)  {
+        /* This file section is a homogeneous data section e.g. 0000...0000 (gray) */
+        colorStrip[pixel] = Qt::gray;
+      } else  {
+        /* This file section doesn't fit into any other category (red) */
+        colorStrip[pixel] = Qt::red;
+      }
+    }
+  }
 }
 
 QString BinaryBar::sizeString (const uint64_t size)
@@ -65,23 +90,9 @@ void BinaryBar::paintEvent (QPaintEvent* event)
   if (stream)  {
     /* Draw the sections */
     unsigned barHeight = 0.5 * height ();
-    for (unsigned int pixel = 0; pixel < width (); pixel++)  {
-      Blockinfo bi = stream->getBlockAt (positionInFile (pixel));
-      QColor sectionColor;
-      if ((bi.avrg > 64.0) && (bi.stddev < 40.0))  {
-        /* This file section is a text section (blue) */
-        pnt.setPen (Qt::blue);
-      } else if ((bi.avrg > 108.0) && (bi.avrg < 148.0) && (bi.stddev > 60.0) && (bi.stddev < 68.0))  {
-        /* This file section is a binary section (yellow) */
-        pnt.setPen (Qt::darkYellow);
-      } else if (bi.stddev < 2.0)  {
-        /* This file section is a homogeneous data section e.g. 0000...0000 (gray) */
-        pnt.setPen (Qt::gray);
-      } else  {
-        /* This file section doesn't fit into any other category (red) */
-        pnt.setPen (Qt::red);
-      }
-      
+    
+    for (unsigned int pixel = 0; pixel < width (); ++pixel)  {
+      pnt.setPen (colorStrip[pixel]);
       pnt.drawLine (pixel, 0, pixel, barHeight);
     }
     
@@ -142,6 +153,11 @@ void BinaryBar::mouseReleaseEvent (QMouseEvent* event)
   if (stream)  {
     emit filePosChanged (positionInFile (currentPos));
   }
+}
+
+void BinaryBar::resizeEvent (QResizeEvent* event)
+{
+  drawColorStrip ();
 }
 
 /*****************************************************************************/
@@ -319,12 +335,12 @@ QString FourierSheet::currentColStr ()
   QString RET = tr ("No data");
   if (currentColumn != (-1))  {
     QString index_str = "";
-    index_str.setNum (1.0 / (currentColumn + 1.0));
+    index_str.setNum (currentColumn + 1);
     QString real_str = "";
     real_str.setNum (real_four[currentColumn].real ());
     QString imag_str = "";
     imag_str.setNum (real_four[currentColumn].imag ());
-    RET = tr ("F(f(%1)) = %2 + %3i").arg (index_str).arg (real_str).arg (imag_str);
+    RET = tr ("F(f(1/%1)) = %2 + %3i").arg (index_str).arg (real_str).arg (imag_str);
   }
   return RET;
 }

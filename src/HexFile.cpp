@@ -45,6 +45,19 @@ Hexfile::~Hexfile ()
   delete[] filepath;
 }
 
+unsigned int Hexfile::countBlocks ()
+{
+  return parts.size ();
+}
+
+Blockinfo Hexfile::getBlock (const unsigned int block_nr)
+{
+  if ((block_nr > parts.size ()) || (!parts.size ()))  {
+    throw EFilesizeExceeded ();
+  }
+  return parts[block_nr];
+}
+
 void Hexfile::loadFile ()
 {
   parts.clear ();
@@ -67,7 +80,7 @@ void Hexfile::loadFile ()
 
 Blockinfo Hexfile::getBlockAt (const uint64_t position)
 {
-  uint64_t RET_pos = 0;
+  register uint64_t RET_pos = 0;
   if (position < filesize ())  {
     for (RET_pos = 0; RET_pos < parts.size (); ++RET_pos)  {
       if ((parts[RET_pos].begin <= position) && (parts[RET_pos].end > position))  {

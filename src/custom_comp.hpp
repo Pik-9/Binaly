@@ -15,6 +15,12 @@ class BinaryBar : public QWidget
 private:
   Hexfile *stream;
   
+  /**
+   * \brief The colors of the binary strip are temporarily stored here.
+   * So we don't have to calculate them again everytime repaint() is called!
+   */
+  std::vector<QColor> colorStrip;
+  
   unsigned int currentPos;
   
 public:
@@ -26,6 +32,11 @@ public:
   uint64_t positionInFile (const unsigned int);
   void setPositionOnBar (const uint64_t);
   
+  /**
+   * \brief Calculate the temporarily stored color in \c colorStrip.
+   */
+  void drawColorStrip ();
+  
   static QString sizeString (const uint64_t);
   
 public:
@@ -36,6 +47,7 @@ protected:
   void mousePressEvent (QMouseEvent*);
   void mouseMoveEvent (QMouseEvent*);
   void mouseReleaseEvent (QMouseEvent*);
+  void resizeEvent (QResizeEvent*);
   
 signals:
   void filePosChanged (uint64_t);

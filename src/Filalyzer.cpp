@@ -15,6 +15,8 @@ Filalyzer::Filalyzer ()
   winrect.moveCenter (QApplication::desktop ()->availableGeometry ().center ());
   setGeometry (winrect);
   
+  streamLoader = new BackGroundWorker ();
+  
   fdia = new QFileDialog (
     this,
     tr ("Select file..."),
@@ -88,6 +90,7 @@ Filalyzer::Filalyzer ()
   
   connect (bar, SIGNAL (filePosChanged (uint64_t)), this, SLOT (changeFilePosition (uint64_t)));
   connect (fdia, SIGNAL (fileSelected (QString)), this, SLOT (openFile (QString)));
+  connect (streamLoader, SIGNAL (finished ()), this, SLOT (fileLoaded ()));
   connect (prev_btn, SIGNAL (clicked ()), this, SLOT (prevKiB ()));
   connect (next_btn, SIGNAL (clicked ()), this, SLOT (nextKiB ()));
 }
@@ -127,16 +130,29 @@ void Filalyzer::openFile (QString filePath)
     delete file;
   }
   file = new Hexfile (filePath.toStdString ().c_str ());
-  file->loadFile ();
+  streamLoader->setFileStream (file);
+  
+  /* Set all element's file stream pointers to NULL. */
+  bar->setFileStream (NULL);
+  dev_hist->setFileStream (NULL);
+  fourier_hist->setFileStream (NULL);
+  hexw->setFileStream (NULL);
+  
+  streamLoader->start ();
+  setWindowTitle (tr ("Filalyzer - %1").arg (filePath));
+  statusBar ()->showMessage (tr ("Loading file %1, please wait...").arg (filePath));
+}
+
+void Filalyzer::fileLoaded ()
+{
   if (file->filesize () > 2048)  {
     next_btn->setEnabled (true);
   }
+  statusBar ()->showMessage (tr ("File loaded."));
   bar->setFileStream (file);
   dev_hist->setFileStream (file);
   fourier_hist->setFileStream (file);
   hexw->setFileStream (file);
-  setWindowTitle (tr ("Filalyzer - %1").arg (filePath));
-  statusBar ()->showMessage (tr ("Loaded file %1").arg (filePath));
 }
 
 void Filalyzer::prevKiB ()

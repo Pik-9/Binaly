@@ -36,6 +36,9 @@ public:
   Hexfile (const char*);
   virtual ~Hexfile ();
   
+  unsigned int countBlocks ();
+  Blockinfo getBlock (const unsigned int);
+  
   void loadFile ();
   Blockinfo getBlockAt (const uint64_t);
   std::vector<char> getBlockDataAt (const uint64_t);

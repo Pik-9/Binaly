@@ -13,6 +13,7 @@
 
 #include "custom_comp.hpp"
 #include "Hexedit.hpp"
+#include "Threading.hpp"
 
 class Filalyzer : public QMainWindow
 {
@@ -23,6 +24,7 @@ private:
   
   /* The file stream to analyze. */
   Hexfile *file;
+  BackGroundWorker *streamLoader;
   
   QFileDialog *fdia;
   
@@ -55,6 +57,7 @@ protected:
 public slots:
   void changeFilePosition (uint64_t);
   void openFile (QString);
+  void fileLoaded ();
   void prevKiB ();
   void nextKiB ();
 };
