@@ -98,9 +98,13 @@ void BinaryBar::paintEvent (QPaintEvent* event)
       pnt.drawText (sizeLabel, Qt::AlignRight, BinaryBar::sizeString (ii * steps));
     }
     
-    /* Draw the currently selected position as white line. */
+    /* Draw the currently selected position as white rectangle. */
     pnt.setPen (Qt::white);
-    pnt.drawLine (currentPos, 0, currentPos, barHeight);
+    QRect selRect;
+    selRect.setHeight (barHeight);
+    selRect.setWidth (width () * 1024 / stream->filesize ());
+    selRect.moveTopLeft (QPoint (currentPos, 0));
+    pnt.drawRect (selRect);
   } else  {
     pnt.drawText (rect (), Qt::AlignCenter, tr ("No data"));
   }

@@ -60,4 +60,8 @@ void HexWidget::loadData (const uint64_t position)
       ascii_line.clear ();
     }
   }
+  if (!hex_line.isEmpty ())  {
+    t_hexedit->append (hex_line);
+    t_asciiedit->append (ascii_line);
+  }
 }

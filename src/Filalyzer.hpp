@@ -49,6 +49,9 @@ public:
   Filalyzer ();
   virtual ~Filalyzer ();
   
+protected:
+  void keyPressEvent (QKeyEvent*);
+  
 public slots:
   void changeFilePosition (uint64_t);
   void openFile (QString);

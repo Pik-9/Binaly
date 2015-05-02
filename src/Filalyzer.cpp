@@ -9,7 +9,7 @@
 Filalyzer::Filalyzer ()
   : QMainWindow (), filePosition (0), file (NULL)
 {
-  resize (900, 600);
+  resize (1000, 800);
   setWindowTitle (tr ("Filalyzer"));
   QRect winrect = geometry ();
   winrect.moveCenter (QApplication::desktop ()->availableGeometry ().center ());
@@ -38,8 +38,8 @@ Filalyzer::Filalyzer ()
   l_text = new QLabel (tr ("<font color='blue'>Text data</font>"));
   l_other = new QLabel (tr ("<font color='red'>Other data</font>"));
   l_pos = new QLabel (tr ("Current position: 0"));
-  prev_btn = new QPushButton (tr ("<= 1024"));
-  next_btn = new QPushButton (tr ("1024 =>"));
+  prev_btn = new QPushButton (tr ("<= 1024 [Q]"));
+  next_btn = new QPushButton (tr ("[W] 1024 =>"));
   prev_btn->setEnabled (false);
   next_btn->setEnabled (false);
   l_plain->setAlignment (Qt::AlignCenter);
@@ -95,6 +95,21 @@ Filalyzer::Filalyzer ()
 Filalyzer::~Filalyzer ()
 {}
 
+void Filalyzer::keyPressEvent (QKeyEvent* event)
+{
+  switch (event->key ())  {
+    case 81:  {
+      prevKiB ();
+      break;
+    }
+    
+    case 87:  {
+      nextKiB ();
+      break;
+    }
+  }
+}
+
 void Filalyzer::changeFilePosition (uint64_t newPos)
 {
   filePosition = newPos;
@@ -126,10 +141,16 @@ void Filalyzer::openFile (QString filePath)
 
 void Filalyzer::prevKiB ()
 {
-  bar->setPositionOnBar (filePosition -= 1024);
+  if (filePosition >= 1023)  {
+    bar->setPositionOnBar (filePosition -= 1024);
+  }
 }
 
 void Filalyzer::nextKiB ()
 {
-  bar->setPositionOnBar (filePosition += 1024);
+  if (file)  {
+    if ((file->filesize () - filePosition) >= 1024)  {
+      bar->setPositionOnBar (filePosition += 1024);
+    }
+  }
 }
