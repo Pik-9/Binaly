@@ -2,7 +2,7 @@
 #define HEXEDIT_H
 
 #include <QWidget>
-#include <QTextEdit>
+#include <QTableWidget>
 #include <QComboBox>
 #include <QGridLayout>
 
@@ -13,10 +13,12 @@ class HexWidget : public QWidget
   Q_OBJECT
 private:
   QComboBox *c_encoding;
-  QTextEdit *t_hexedit, *t_asciiedit;
+  QTableWidget *hex_table;
   QGridLayout *lyt;
   
   Hexfile *stream;
+  Blockinfo currentBlockInfo;
+  std::vector<char> currentBlockData;
   
   static const unsigned int bases[4];
   
@@ -29,6 +31,10 @@ public:
   void setFileStream (Hexfile*);
   
   void loadData (const uint64_t);
+  void printData ();
+  
+public slots:
+  void encodingChanged (int);
 };
 
 #endif
