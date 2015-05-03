@@ -89,7 +89,7 @@ class FourierSheet : public Histogram
 {
   Q_OBJECT
 protected:
-  std::vector<std::complex < double > > real_four;
+  std::vector<std::complex < double > > fourier_coeffs;
 
 public:
   FourierSheet (QWidget *parent = 0);

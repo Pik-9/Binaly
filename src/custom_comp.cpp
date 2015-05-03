@@ -294,11 +294,11 @@ void Histogram::mouseMoveEvent (QMouseEvent* event)
 /*****************************************************************************/
 
 FourierSheet::FourierSheet (QWidget *parent)
-  : Histogram (parent), real_four (0)
+  : Histogram (parent), fourier_coeffs (0)
 {}
 
 FourierSheet::FourierSheet (FourierSheet& other)
-  : Histogram (other), real_four (other.real_four)
+  : Histogram (other), fourier_coeffs (other.fourier_coeffs)
 {}
 
 FourierSheet::~FourierSheet ()
@@ -307,17 +307,17 @@ FourierSheet::~FourierSheet ()
 void FourierSheet::loadData (const uint64_t position)
 {
   std::vector<char> data = stream->getBlockDataAt (position);
-  real_four.clear ();
-  real_four.resize (data.size ());
+  fourier_coeffs.clear ();
+  fourier_coeffs.resize (data.size ());
   
   /* Do the discrete Fourier transform. */
   register unsigned int j, k;
-  for (k = 0; k < real_four.size (); ++k)  {
-    real_four[k] = 0.0;
+  for (k = 0; k < fourier_coeffs.size (); ++k)  {
+    fourier_coeffs[k] = 0.0;
     for (j = 0; j < data.size (); ++j)  {
       double theta = -2.0 * M_PI * j * k / (double) data.size ();
       std::complex<double> z = std::polar (1.0, theta) * (double) data[j];
-      real_four[k] += z;
+      fourier_coeffs[k] += z;
     }
   }
   
@@ -337,9 +337,9 @@ QString FourierSheet::currentColStr ()
     QString index_str = "";
     index_str.setNum (currentColumn + 1);
     QString real_str = "";
-    real_str.setNum (real_four[currentColumn].real ());
+    real_str.setNum (fourier_coeffs[currentColumn].real ());
     QString imag_str = "";
-    imag_str.setNum (real_four[currentColumn].imag ());
+    imag_str.setNum (fourier_coeffs[currentColumn].imag ());
     RET = tr ("F(f(1/%1)) = %2 + %3i").arg (index_str).arg (real_str).arg (imag_str);
   }
   return RET;
@@ -350,25 +350,25 @@ void FourierSheet::paintEvent (QPaintEvent* event)
   QPainter pnt;
   pnt.begin (this);
   pnt.fillRect (rect (), Qt::white);
-  if (real_four.size ())  {
-    double columnWidth = (double) width () / real_four.size ();
+  if (fourier_coeffs.size ())  {
+    double columnWidth = (double) width () / fourier_coeffs.size ();
     
     /* Search for maximum and minimum value */
     double max = 0.0, min = 0.0;
     register unsigned int ii;
-    for (ii = 1; ii < real_four.size (); ++ii)  {
-      if (real_four[ii].real () > max)  {
-        max = real_four[ii].real ();
+    for (ii = 1; ii < fourier_coeffs.size (); ++ii)  {
+      if (fourier_coeffs[ii].real () > max)  {
+        max = fourier_coeffs[ii].real ();
       }
-      if (real_four[ii].imag () > max)  {
-        max = real_four[ii].imag ();
+      if (fourier_coeffs[ii].imag () > max)  {
+        max = fourier_coeffs[ii].imag ();
       }
       
-      if (real_four[ii].real () < min)  {
-        min = real_four[ii].real ();
+      if (fourier_coeffs[ii].real () < min)  {
+        min = fourier_coeffs[ii].real ();
       }
-      if (real_four[ii].imag () < min)  {
-        min = real_four[ii].imag ();
+      if (fourier_coeffs[ii].imag () < min)  {
+        min = fourier_coeffs[ii].imag ();
       }
     }
     double range = max - min;
@@ -379,24 +379,24 @@ void FourierSheet::paintEvent (QPaintEvent* event)
     pnt.drawLine (0, y_0, width (), y_0);
     
     /* Draw the Fourier coefficients. */
-    for (ii = 1; ii < real_four.size (); ++ii)  {
+    for (ii = 1; ii < fourier_coeffs.size (); ++ii)  {
       /* Real part */
       pnt.setPen (Qt::blue);
-      unsigned int x_1 = (ii - 1) * width () / real_four.size ();
-      unsigned int x_2 = ii * width () / real_four.size ();
-      unsigned int y_1 = height () - (real_four[ii - 1].real () - min) * height () / range;
-      unsigned int y_2 = height () - (real_four[ii].real () - min) * height () / range;
+      unsigned int x_1 = (ii - 1) * width () / fourier_coeffs.size ();
+      unsigned int x_2 = ii * width () / fourier_coeffs.size ();
+      unsigned int y_1 = height () - (fourier_coeffs[ii - 1].real () - min) * height () / range;
+      unsigned int y_2 = height () - (fourier_coeffs[ii].real () - min) * height () / range;
       pnt.drawLine (x_1, y_1, x_2, y_2);
       
       /* Imaginary part */
       pnt.setPen (Qt::green);
-      y_1 = height () - (real_four[ii - 1].imag () - min) * height () / range;
-      y_2 = height () - (real_four[ii].imag () - min) * height () / range;
+      y_1 = height () - (fourier_coeffs[ii - 1].imag () - min) * height () / range;
+      y_2 = height () - (fourier_coeffs[ii].imag () - min) * height () / range;
       pnt.drawLine (x_1, y_1, x_2, y_2);
     }
     
     /* Draw the red position line and it's value. */
-    unsigned int red_x = currentColumn * width () / real_four.size ();
+    unsigned int red_x = currentColumn * width () / fourier_coeffs.size ();
     pnt.setPen (Qt::red);
     QRect red_label;
     red_label.setSize (QSize (200, 30));
@@ -438,8 +438,8 @@ void FourierSheet::mousePressEvent (QMouseEvent* event)
 
 void FourierSheet::mouseMoveEvent (QMouseEvent* event)
 {
-  if (real_four.size ())  {
-    currentColumn = real_four.size () * event->x () / width ();
+  if (fourier_coeffs.size ())  {
+    currentColumn = fourier_coeffs.size () * event->x () / width ();
   }
   repaint ();
 }
