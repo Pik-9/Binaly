@@ -18,6 +18,9 @@ public:
   virtual ~BackGroundWorker ();
   
   void setFileStream (Hexfile*);
+  
+signals:
+  void errorOccured ();
 };
 
 #endif

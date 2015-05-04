@@ -51,6 +51,7 @@ protected:
   
 signals:
   void filePosChanged (uint64_t);
+  void error ();
 };
 
 /*****************************************************************************/
@@ -81,6 +82,9 @@ protected:
   void paintEvent (QPaintEvent*);
   void mousePressEvent (QMouseEvent*);
   void mouseMoveEvent (QMouseEvent*);
+  
+signals:
+  void error ();
 };
 
 /*****************************************************************************/

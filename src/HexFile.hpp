@@ -19,11 +19,29 @@ struct Blockinfo
   static void calculateValues (Blockinfo*, unsigned char*, const uint64_t);
 };
 
+struct FilePart
+{
+  uint64_t begin;
+  std::vector<char> data;
+};
+
+/**
+ * \class EFileException
+ * \brief A base class for all file related errors.
+ */
+class EFileException {};
+
 /**
  * \class EFilesizeExceeded
  * \brief This exception is thrown when the filesize is exceeded.
  */
-class EFilesizeExceeded {};
+class EFilesizeExceeded : public EFileException {};
+
+/**
+ * \class EReadWriteError
+ * \brief This exception is thrown when the file can't be accessed for any reason.
+ */
+class EReadWriteError : public EFileException {};
 
 class Hexfile
 {
@@ -44,6 +62,8 @@ public:
   std::vector<char> getBlockDataAt (const uint64_t);
   
   uint64_t filesize ();
+  
+  void writeBlock (const uint64_t, std::vector<char>);
 };
 
 #endif

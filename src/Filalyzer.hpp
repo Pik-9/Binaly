@@ -57,7 +57,10 @@ protected:
 public slots:
   void changeFilePosition (uint64_t);
   void openFile (QString);
+  void fileModified ();
+  void saveFile ();
   void fileLoaded ();
+  void error ();
   void prevKiB ();
   void nextKiB ();
 };

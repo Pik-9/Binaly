@@ -5,6 +5,7 @@
 #include <QStatusBar>
 #include <QApplication>
 #include <QMenuBar>
+#include <QMessageBox>
 
 Filalyzer::Filalyzer ()
   : QMainWindow (), filePosition (0), file (NULL)
@@ -24,8 +25,9 @@ Filalyzer::Filalyzer ()
   );
   
   filemenu = new QMenu (tr ("&File"), this);
-  filemenu->addAction (tr ("&Open"), fdia, SLOT (show ()));
-  filemenu->addAction (tr ("&Quit"), qApp, SLOT (quit ()));
+  filemenu->addAction (tr ("&Open"), fdia, SLOT (show ()), tr ("CTRL+O"));
+  filemenu->addAction (tr ("&Save"), this, SLOT (saveFile ()), tr ("CTRL+S"));
+  filemenu->addAction (tr ("&Quit"), qApp, SLOT (quit ()), tr ("CTRL+Q"));
   menuBar()->addMenu (filemenu);
   
   sp_main = new QSplitter (Qt::Vertical);
@@ -89,8 +91,13 @@ Filalyzer::Filalyzer ()
   setCentralWidget (sp_main);
   
   connect (bar, SIGNAL (filePosChanged (uint64_t)), this, SLOT (changeFilePosition (uint64_t)));
+  connect (bar, SIGNAL (error ()), this, SLOT (error ()));
+  connect (dev_hist, SIGNAL (error ()), this, SLOT (error ()));
+  connect (fourier_hist, SIGNAL (error ()), this, SLOT (error ()));
   connect (fdia, SIGNAL (fileSelected (QString)), this, SLOT (openFile (QString)));
   connect (streamLoader, SIGNAL (finished ()), this, SLOT (fileLoaded ()));
+  connect (streamLoader, SIGNAL (errorOccured ()), this, SLOT (error ()));
+  connect (hexw, SIGNAL (fileChanged ()), this, SLOT (fileModified ()));
   connect (prev_btn, SIGNAL (clicked ()), this, SLOT (prevKiB ()));
   connect (next_btn, SIGNAL (clicked ()), this, SLOT (nextKiB ()));
 }
@@ -143,16 +150,45 @@ void Filalyzer::openFile (QString filePath)
   statusBar ()->showMessage (tr ("Loading file %1, please wait...").arg (filePath));
 }
 
+void Filalyzer::fileModified ()
+{
+  statusBar ()->showMessage (tr ("File changed."));
+}
+
+void Filalyzer::saveFile ()
+{
+  try  {
+    hexw->saveChanges ();
+    statusBar ()->showMessage (tr ("File saved."));
+  } catch (EFileException& exc)  {
+    error ();
+  }
+}
+
 void Filalyzer::fileLoaded ()
 {
   if (file->filesize () > 2048)  {
     next_btn->setEnabled (true);
   }
   statusBar ()->showMessage (tr ("File loaded."));
-  bar->setFileStream (file);
-  dev_hist->setFileStream (file);
-  fourier_hist->setFileStream (file);
-  hexw->setFileStream (file);
+  try  {
+    bar->setFileStream (file);
+    dev_hist->setFileStream (file);
+    fourier_hist->setFileStream (file);
+    hexw->setFileStream (file);
+  } catch (EFileException& exc)  {
+    error ();
+  }
+}
+
+void Filalyzer::error ()
+{
+  QMessageBox::critical (
+    this,
+    tr ("File error!"),
+    tr ("An error occured while writing to file!")
+  );
+  statusBar ()->showMessage (tr ("IO error"));
 }
 
 void Filalyzer::prevKiB ()
