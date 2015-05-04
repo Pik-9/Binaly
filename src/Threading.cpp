@@ -14,5 +14,9 @@ void BackGroundWorker::setFileStream (Hexfile* filestream)
 
 void BackGroundWorker::run ()
 {
-  stream->loadFile ();
+  try  {
+    stream->loadFile ();
+  } catch (EFileException& exc)  {
+    emit errorOccured ();
+  }
 }

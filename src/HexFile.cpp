@@ -63,6 +63,9 @@ void Hexfile::loadFile ()
   parts.clear ();
   fstream in;
   in.open (filepath, ios::in);
+  if (in.fail ())  {
+    throw EReadWriteError ();
+  }
   unsigned char block[1024];
   register uint64_t counter = 0;
   while (in.peek () != (-1))  {
@@ -122,4 +125,19 @@ vector<char> Hexfile::getBlockDataAt (const uint64_t position)
 uint64_t Hexfile::filesize ()
 {
   return fsize;
+}
+
+void Hexfile::writeBlock (const uint64_t position, vector<char> data)
+{
+  fstream out;
+  out.open (filepath, ios::in | ios::out);
+  out.seekp (position);
+  for (unsigned int ii = 0; ii < data.size ();  ++ii)  {
+    char outC = data[ii];
+    out.write (&outC, 1);
+  }
+  out.close ();
+  if (out.fail ())  {
+    throw EReadWriteError ();
+  }
 }

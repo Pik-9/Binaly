@@ -40,7 +40,13 @@ void BinaryBar::drawColorStrip ()
   if (stream)  {
     register unsigned int pixel;
     for (pixel = 0; pixel < width (); ++pixel)  {
-      Blockinfo bi = stream->getBlockAt (positionInFile (pixel));
+      Blockinfo bi;
+      try  {
+        bi = stream->getBlockAt (positionInFile (pixel));
+      } catch (EFileException& exc)  {
+        stream = NULL;
+        emit error ();
+      }
       if ((bi.avrg > 64.0) && (bi.stddev < 40.0))  {
         /* This file section is a text section (blue) */
         colorStrip[pixel] = Qt::blue;
@@ -202,7 +208,13 @@ void Histogram::loadData (const uint64_t position)
   deviation.clear ();
   deviation.resize (256);
   
-  std::vector<char> data = stream->getBlockDataAt (position);
+  std::vector<char> data;
+  try  {
+    data = stream->getBlockDataAt (position);
+  } catch (EFileException& exc)  {
+    stream = NULL;
+    emit error ();
+  }
   
   for (unsigned int ii = 0; ii < data.size (); ++ii)  {
     unsigned char byte = data[ii];
@@ -306,7 +318,13 @@ FourierSheet::~FourierSheet ()
 
 void FourierSheet::loadData (const uint64_t position)
 {
-  std::vector<char> data = stream->getBlockDataAt (position);
+  std::vector<char> data;
+  try  {
+    data = stream->getBlockDataAt (position);
+  } catch (EFileException& exc)  {
+    stream = NULL;
+    emit error ();
+  }
   fourier_coeffs.clear ();
   fourier_coeffs.resize (data.size ());
   
