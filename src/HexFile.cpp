@@ -33,7 +33,7 @@ void Blockinfo::calculateValues (Blockinfo* block, unsigned char* buffer, const 
 }
 
 Hexfile::Hexfile (const char* file)
-  : parts (0)
+  : parts (0), fsize (0), errorbits (0)
 {
   filepath = new char[strlen (file) + 1];
   strcpy (filepath, file);
@@ -81,6 +81,16 @@ void Hexfile::loadFile ()
   fsize = counter;
 }
 
+void Hexfile::fail ()
+{
+  errorbits = 1;
+}
+
+char Hexfile::failStatus ()
+{
+  return errorbits;
+}
+
 Blockinfo Hexfile::getBlockAt (const uint64_t position)
 {
   register uint64_t RET_pos = 0;
@@ -124,6 +134,9 @@ vector<char> Hexfile::getBlockDataAt (const uint64_t position)
 
 uint64_t Hexfile::filesize ()
 {
+  if (!fsize)  {
+    throw EFilesizeExceeded ();
+  }
   return fsize;
 }
 

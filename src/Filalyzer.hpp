@@ -24,6 +24,7 @@ private:
   
   /* The file stream to analyze. */
   Hexfile *file;
+  QString path;
   BackGroundWorker *streamLoader;
   
   QFileDialog *fdia;

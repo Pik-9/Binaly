@@ -136,7 +136,8 @@ void Filalyzer::openFile (QString filePath)
   if (file)  {
     delete file;
   }
-  file = new Hexfile (filePath.toStdString ().c_str ());
+  path = filePath;
+  file = new Hexfile (path.toStdString ().c_str ());
   streamLoader->setFileStream (file);
   
   /* Set all element's file stream pointers to NULL. */
@@ -146,47 +147,53 @@ void Filalyzer::openFile (QString filePath)
   hexw->setFileStream (NULL);
   
   streamLoader->start ();
-  setWindowTitle (tr ("Filalyzer - %1").arg (filePath));
-  statusBar ()->showMessage (tr ("Loading file %1, please wait...").arg (filePath));
+  statusBar ()->showMessage (tr ("Loading file %1, please wait...").arg (path));
 }
 
 void Filalyzer::fileModified ()
 {
   statusBar ()->showMessage (tr ("File changed."));
+  setWindowTitle (tr ("Filalyzer - %1 *").arg (path));
 }
 
 void Filalyzer::saveFile ()
 {
   try  {
     hexw->saveChanges ();
-    statusBar ()->showMessage (tr ("File saved."));
   } catch (EFileException& exc)  {
     error ();
+  }
+  
+  if (!file->failStatus ())  {
+    statusBar ()->showMessage (tr ("File saved to %1.").arg (path));
+    setWindowTitle (tr ("Filalyzer - %1").arg (path));
   }
 }
 
 void Filalyzer::fileLoaded ()
 {
-  if (file->filesize () > 2048)  {
-    next_btn->setEnabled (true);
-  }
-  statusBar ()->showMessage (tr ("File loaded."));
-  try  {
+  if (!file->failStatus ())  {
+    statusBar ()->showMessage (tr ("File %1 loaded.").arg (path));
     bar->setFileStream (file);
     dev_hist->setFileStream (file);
     fourier_hist->setFileStream (file);
     hexw->setFileStream (file);
-  } catch (EFileException& exc)  {
-    error ();
+    changeFilePosition (0);
+    setWindowTitle (tr ("Filalyzer - %1").arg (path));
+  } else  {
+    delete file;
+    path = "";
+    file = NULL;
   }
 }
 
 void Filalyzer::error ()
 {
+  file->fail ();
   QMessageBox::critical (
     this,
     tr ("File error!"),
-    tr ("An error occured while writing to file!")
+    tr ("An error occured while reading/writing the file!")
   );
   statusBar ()->showMessage (tr ("IO error"));
 }

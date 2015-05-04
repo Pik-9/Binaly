@@ -125,7 +125,9 @@ void HexWidget::printData ()
 void HexWidget::encodingChanged (int newVal)
 {
   if (stream)  {
+    table_printed = false;
     printData ();
+    table_printed = true;
   }
 }
 

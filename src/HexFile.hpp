@@ -49,6 +49,7 @@ private:
   char *filepath;
   uint64_t fsize;
   std::vector<Blockinfo> parts;
+  char errorbits;
   
 public:
   Hexfile (const char*);
@@ -58,6 +59,10 @@ public:
   Blockinfo getBlock (const unsigned int);
   
   void loadFile ();
+  
+  void fail ();
+  char failStatus ();
+  
   Blockinfo getBlockAt (const uint64_t);
   std::vector<char> getBlockDataAt (const uint64_t);
   
