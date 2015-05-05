@@ -10,15 +10,19 @@
 #include <QMenu>
 #include <QTabWidget>
 #include <QPushButton>
+#include <QSettings>
 
 #include "custom_comp.hpp"
 #include "Hexedit.hpp"
 #include "Threading.hpp"
+#include "SettingsDialog.hpp"
 
 class Filalyzer : public QMainWindow
 {
   Q_OBJECT
 private:
+  QSettings *settings;
+  
   /* The current position in the file. */
   uint64_t filePosition;
   
@@ -28,8 +32,9 @@ private:
   BackGroundWorker *streamLoader;
   
   QFileDialog *fdia;
+  SettingsDialog *setDia;
   
-  QMenu *filemenu;
+  QMenu *filemenu, *settingsmenu;
   
   QSplitter *sp_main, *sp_sub;
   
@@ -49,7 +54,7 @@ private:
   /* The hexedit widget */
   HexWidget *hexw;
 public:
-  Filalyzer ();
+  Filalyzer (QSettings*);
   virtual ~Filalyzer ();
   
 protected:

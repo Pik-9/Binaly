@@ -8,8 +8,8 @@
 
 unsigned int BinaryBar::countSections = 4;
 
-BinaryBar::BinaryBar (QWidget *parent)
-  : QWidget (parent), stream (NULL), currentPos (0), colorStrip (0)
+BinaryBar::BinaryBar (QSettings* appSettings, QWidget *parent)
+  : QWidget (parent), stream (NULL), currentPos (0), colorStrip (0), settings (appSettings)
 {}
 
 BinaryBar::~BinaryBar ()
@@ -38,6 +38,12 @@ void BinaryBar::drawColorStrip ()
 {
   colorStrip.resize (width ());
   if (stream)  {
+    settings->beginGroup ("Colors");
+    QColor textColor (settings->value ("TextSec", "#0000FF").toString ());
+    QColor binColor (settings->value ("BinarySection", "#AAAA00").toString ());
+    QColor homColor (settings->value ("HomoSection", "#808080").toString ());
+    QColor miscColor (settings->value ("MiscColor", "#804000").toString ());
+    settings->endGroup ();
     register unsigned int pixel;
     for (pixel = 0; pixel < width (); ++pixel)  {
       Blockinfo bi;
@@ -49,16 +55,16 @@ void BinaryBar::drawColorStrip ()
       }
       if ((bi.avrg > 64.0) && (bi.stddev < 40.0))  {
         /* This file section is a text section (blue) */
-        colorStrip[pixel] = Qt::blue;
+        colorStrip[pixel] = textColor;
       } else if ((bi.avrg > 108.0) && (bi.avrg < 148.0) && (bi.stddev > 60.0) && (bi.stddev < 68.0))  {
         /* This file section is a binary section (yellow) */
-        colorStrip[pixel] = Qt::darkYellow;
+        colorStrip[pixel] = binColor;
       } else if (bi.stddev < 2.0)  {
         /* This file section is a homogeneous data section e.g. 0000...0000 (gray) */
-        colorStrip[pixel] = Qt::gray;
+        colorStrip[pixel] = homColor;
       } else  {
         /* This file section doesn't fit into any other category (red) */
-        colorStrip[pixel] = Qt::red;
+        colorStrip[pixel] = miscColor;
       }
     }
   }

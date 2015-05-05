@@ -7,8 +7,8 @@
 #include <QMenuBar>
 #include <QMessageBox>
 
-Filalyzer::Filalyzer ()
-  : QMainWindow (), filePosition (0), file (NULL)
+Filalyzer::Filalyzer (QSettings* appSettings)
+  : QMainWindow (), filePosition (0), file (NULL), settings (appSettings)
 {
   resize (1000, 800);
   setWindowTitle (tr ("Filalyzer"));
@@ -17,6 +17,7 @@ Filalyzer::Filalyzer ()
   setGeometry (winrect);
   
   streamLoader = new BackGroundWorker ();
+  setDia = new SettingsDialog (settings);
   
   fdia = new QFileDialog (
     this,
@@ -28,7 +29,11 @@ Filalyzer::Filalyzer ()
   filemenu->addAction (tr ("&Open"), fdia, SLOT (show ()), tr ("CTRL+O"));
   filemenu->addAction (tr ("&Save"), this, SLOT (saveFile ()), tr ("CTRL+S"));
   filemenu->addAction (tr ("&Quit"), qApp, SLOT (quit ()), tr ("CTRL+Q"));
-  menuBar()->addMenu (filemenu);
+  menuBar ()->addMenu (filemenu);
+  
+  settingsmenu = new QMenu (tr ("S&ettings"), this);
+  settingsmenu->addAction (tr ("Settings"), setDia, SLOT (show ()));
+  menuBar ()->addMenu (settingsmenu);
   
   sp_main = new QSplitter (Qt::Vertical);
   sp_sub = new QSplitter (Qt::Horizontal);
@@ -36,11 +41,20 @@ Filalyzer::Filalyzer ()
   /* Prepare the file overview split. */
   overview_widget = new QWidget ();
   overview_lyt = new QGridLayout (overview_widget);
-  bar = new BinaryBar (this);
-  l_plain = new QLabel (tr ("<font color='gray'>Homogeneous data</font>"));
-  l_bin = new QLabel (tr ("<font color='yellow'>Random binary data</font>"));
-  l_text = new QLabel (tr ("<font color='blue'>Text data</font>"));
-  l_other = new QLabel (tr ("<font color='red'>Other data</font>"));
+  bar = new BinaryBar (settings, this);
+  
+  /* Load previously saved settings. */
+  settings->beginGroup ("Colors");
+  QString textColor (settings->value ("TextSec", "#0000FF").toString ());
+  QString binColor (settings->value ("BinarySection", "#AAAA00").toString ());
+  QString homColor (settings->value ("HomoSection", "#808080").toString ());
+  QString miscColor (settings->value ("MiscColor", "#804000").toString ());
+  settings->endGroup ();
+  
+  l_plain = new QLabel (tr ("<font color='%1'>Homogeneous data</font>").arg (textColor));
+  l_bin = new QLabel (tr ("<font color='%1'>Random binary data</font>").arg (binColor));
+  l_text = new QLabel (tr ("<font color='%1'>Text data</font>").arg (homColor));
+  l_other = new QLabel (tr ("<font color='%1'>Other data</font>").arg (miscColor));
   l_pos = new QLabel (tr ("Current position: 0"));
   prev_btn = new QPushButton (tr ("<= 1024 [Q]"));
   next_btn = new QPushButton (tr ("[W] 1024 =>"));

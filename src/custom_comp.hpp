@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPaintEvent>
+#include <QSettings>
 
 #include <vector>
 #include <complex>
@@ -13,6 +14,8 @@ class BinaryBar : public QWidget
 {
   Q_OBJECT
 private:
+  QSettings *settings;
+  
   Hexfile *stream;
   
   /**
@@ -24,7 +27,7 @@ private:
   unsigned int currentPos;
   
 public:
-  BinaryBar (QWidget *parent = 0);
+  BinaryBar (QSettings*, QWidget *parent = 0);
   virtual ~BinaryBar ();
   
   void setFileStream (Hexfile*);
