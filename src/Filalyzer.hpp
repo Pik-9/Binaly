@@ -25,6 +25,7 @@ private:
   
   /* The current position in the file. */
   uint64_t filePosition;
+  bool modified_file;
   
   /* The file stream to analyze. */
   Hexfile *file;
@@ -57,8 +58,15 @@ public:
   Filalyzer (QSettings*);
   virtual ~Filalyzer ();
   
+  /**
+   * \brief Ask user whether file should be saved.
+   * \return True if user made a decision. False if user clicked 'Cancel'.
+   */
+  bool askFileSave ();
+  
 protected:
   void keyPressEvent (QKeyEvent*);
+  void closeEvent (QCloseEvent*);
   
 public slots:
   void changeFilePosition (uint64_t);

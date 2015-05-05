@@ -6,7 +6,7 @@
 const unsigned int HexWidget::bases[4] = {2, 8, 10, 16};
 
 HexWidget::HexWidget (QWidget* parent)
-  : QWidget (parent), stream (NULL), /*currentBlockData (0),*/ customData (0)
+  : QWidget (parent), stream (NULL), customData (0)
 {
   lyt = new QGridLayout (this);
   c_encoding = new QComboBox ();
@@ -43,7 +43,6 @@ QChar HexWidget::printableMatch (const char bare)
 void HexWidget::setFileStream (Hexfile* filestream)
 {
   stream = filestream;
-  edited = false;
   table_printed = false;
   customData.clear ();
 }
@@ -71,7 +70,6 @@ void HexWidget::loadData (const uint64_t position)
   /* Lock the table widget for user edits. */
   table_printed = false;
   
-  edited = false;
   printData ();
   
   /* Unlock the table widget and react on user's changes from now on. */
@@ -134,7 +132,6 @@ void HexWidget::encodingChanged (int newVal)
 void HexWidget::editCell (QTableWidgetItem* cell)
 {
   if (table_printed)  {
-    edited = true;
     QFont cellFont;
     QTableWidgetItem *hexCell, *asciiCell;
     if (cell->column () > 16)  {

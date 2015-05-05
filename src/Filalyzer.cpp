@@ -8,7 +8,7 @@
 #include <QMessageBox>
 
 Filalyzer::Filalyzer (QSettings* appSettings)
-  : QMainWindow (), filePosition (0), file (NULL), settings (appSettings)
+  : QMainWindow (), filePosition (0), file (NULL), settings (appSettings), modified_file (false)
 {
   resize (1000, 800);
   setWindowTitle (tr ("Filalyzer"));
@@ -28,7 +28,7 @@ Filalyzer::Filalyzer (QSettings* appSettings)
   filemenu = new QMenu (tr ("&File"), this);
   filemenu->addAction (tr ("&Open"), fdia, SLOT (show ()), tr ("CTRL+O"));
   filemenu->addAction (tr ("&Save"), this, SLOT (saveFile ()), tr ("CTRL+S"));
-  filemenu->addAction (tr ("&Quit"), qApp, SLOT (quit ()), tr ("CTRL+Q"));
+  filemenu->addAction (tr ("&Quit"), this, SLOT (close ()), tr ("CTRL+Q"));
   menuBar ()->addMenu (filemenu);
   
   settingsmenu = new QMenu (tr ("S&ettings"), this);
@@ -51,9 +51,9 @@ Filalyzer::Filalyzer (QSettings* appSettings)
   QString miscColor (settings->value ("MiscColor", "#804000").toString ());
   settings->endGroup ();
   
-  l_plain = new QLabel (tr ("<font color='%1'>Homogeneous data</font>").arg (textColor));
+  l_plain = new QLabel (tr ("<font color='%1'>Homogeneous data</font>").arg (homColor));
   l_bin = new QLabel (tr ("<font color='%1'>Random binary data</font>").arg (binColor));
-  l_text = new QLabel (tr ("<font color='%1'>Text data</font>").arg (homColor));
+  l_text = new QLabel (tr ("<font color='%1'>Text data</font>").arg (textColor));
   l_other = new QLabel (tr ("<font color='%1'>Other data</font>").arg (miscColor));
   l_pos = new QLabel (tr ("Current position: 0"));
   prev_btn = new QPushButton (tr ("<= 1024 [Q]"));
@@ -114,10 +114,32 @@ Filalyzer::Filalyzer (QSettings* appSettings)
   connect (hexw, SIGNAL (fileChanged ()), this, SLOT (fileModified ()));
   connect (prev_btn, SIGNAL (clicked ()), this, SLOT (prevKiB ()));
   connect (next_btn, SIGNAL (clicked ()), this, SLOT (nextKiB ()));
+  
+  /* If application is called with argument. Open the file on startup. */
+  QStringList args = qApp->arguments ();
+  if (args.count () > 1)  {
+    openFile (args.at (1));
+  }
 }
 
 Filalyzer::~Filalyzer ()
 {}
+
+bool Filalyzer::askFileSave ()
+{
+  QMessageBox::StandardButton reply = QMessageBox::question (
+    this,
+    tr ("Unsaved changes"),
+    tr ("The current file has unsaved changes. Do you want to save it?"),
+    QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel
+  );
+  
+  if (reply == QMessageBox::Yes)  {
+    saveFile ();
+  }
+  
+  return ((reply == QMessageBox::Yes) || (reply == QMessageBox::No));
+}
 
 void Filalyzer::keyPressEvent (QKeyEvent* event)
 {
@@ -130,6 +152,15 @@ void Filalyzer::keyPressEvent (QKeyEvent* event)
     case 87:  {
       nextKiB ();
       break;
+    }
+  }
+}
+
+void Filalyzer::closeEvent (QCloseEvent* event)
+{
+  if (modified_file)  {
+    if (!askFileSave ())  {
+      event->ignore ();
     }
   }
 }
@@ -147,25 +178,33 @@ void Filalyzer::changeFilePosition (uint64_t newPos)
 
 void Filalyzer::openFile (QString filePath)
 {
-  if (file)  {
-    delete file;
+  bool goon = true;
+  if (modified_file)  {
+    goon = askFileSave ();
   }
-  path = filePath;
-  file = new Hexfile (path.toStdString ().c_str ());
-  streamLoader->setFileStream (file);
   
-  /* Set all element's file stream pointers to NULL. */
-  bar->setFileStream (NULL);
-  dev_hist->setFileStream (NULL);
-  fourier_hist->setFileStream (NULL);
-  hexw->setFileStream (NULL);
+  if (goon)  {
+    if (file)  {
+      delete file;
+    }
+    path = filePath;
+    file = new Hexfile (path.toStdString ().c_str ());
+    streamLoader->setFileStream (file);
   
-  streamLoader->start ();
-  statusBar ()->showMessage (tr ("Loading file %1, please wait...").arg (path));
+    /* Set all element's file stream pointers to NULL. */
+    bar->setFileStream (NULL);
+    dev_hist->setFileStream (NULL);
+    fourier_hist->setFileStream (NULL);
+    hexw->setFileStream (NULL);
+  
+    streamLoader->start ();
+    statusBar ()->showMessage (tr ("Loading file %1, please wait...").arg (path));
+  }
 }
 
 void Filalyzer::fileModified ()
 {
+  modified_file = true;
   statusBar ()->showMessage (tr ("File changed."));
   setWindowTitle (tr ("Filalyzer - %1 *").arg (path));
 }
@@ -179,6 +218,7 @@ void Filalyzer::saveFile ()
   }
   
   if (!file->failStatus ())  {
+    modified_file = false;
     statusBar ()->showMessage (tr ("File saved to %1.").arg (path));
     setWindowTitle (tr ("Filalyzer - %1").arg (path));
   }
@@ -187,6 +227,7 @@ void Filalyzer::saveFile ()
 void Filalyzer::fileLoaded ()
 {
   if (!file->failStatus ())  {
+    modified_file = false;
     statusBar ()->showMessage (tr ("File %1 loaded.").arg (path));
     bar->setFileStream (file);
     dev_hist->setFileStream (file);
