@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 2.8.11)
-project(filalyzer)
+project(Binaly)
 
 add_subdirectory(doc)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(Filalyzer_SRCS
-  src/Filalyzer.cpp
+set(Binaly_SRCS
+  src/Binaly.cpp
   src/main.cpp src/HexFile.cpp
   src/custom_comp.cpp
   src/Hexedit.cpp
@@ -16,22 +16,22 @@ set(Filalyzer_SRCS
 )
 
 set(Lang_FILES
-  lang/Filalyzer_de.ts
+  lang/Binaly_de.ts
 )
 
 find_package(Qt5Widgets)
 if(${Qt5Widgets_FOUND})
   find_package(Qt5LinguistTools)
   qt5_add_translation(TRANS_BIN ${Lang_FILES})
-  add_executable(${PROJECT_NAME} ${Filalyzer_SRCS} ${TRANS_BIN})
+  add_executable(${PROJECT_NAME} ${Binaly_SRCS} ${TRANS_BIN})
   qt5_use_modules(${PROJECT_NAME} Widgets)
 else(${Qt5Widgets_FOUND})
   find_package(Qt4 REQUIRED)
   qt4_add_translation(TRANS_BIN ${Lang_FILES})
-  add_executable(${PROJECT_NAME} ${Filalyzer_SRCS} ${TRANS_BIN})
+  add_executable(${PROJECT_NAME} ${Binaly_SRCS} ${TRANS_BIN})
   include(${QT_USE_FILE})
   target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
 endif(${Qt5Widgets_FOUND})
 
-install(TARGETS filalyzer RUNTIME DESTINATION bin)
-install(FILES ${TRANS_BIN} DESTINATION share/Filalyzer)
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+install(FILES ${TRANS_BIN} DESTINATION share/Binaly)

@@ -1,33 +1,33 @@
 /******************************************************************************
- *  Filalyzer                                                                 *
+ *  Binaly                                                                    *
  *                                                                            *
  *   (C) 2015 by Daniel Steinhauer <pik-9@users.sourceforge.net>              *
  *                                                                            *
  *                                                                            *
- *  This file is part of Filalyzer.                                           *
+ *  This file is part of Binaly.                                              *
  *                                                                            *
- *  Filalyzer is free software: you can redistribute it and/or modify         *
+ *  Binaly is free software: you can redistribute it and/or modify            *
  *  it under the terms of the GNU General Public License as published by      *
  *  the Free Software Foundation, either version 3 of the License, or         *
  *  (at your option) any later version.                                       *
  *                                                                            *
- *  Filalyzer is distributed in the hope that it will be useful,              *
+ *  Binaly is distributed in the hope that it will be useful,                 *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of            *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             *
  *  GNU General Public License for more details.                              *
  *                                                                            *
  *  You should have received a copy of the GNU General Public License         *
- *  along with Filalyzer.  If not, see <http://www.gnu.org/licenses/>.           *
+ *  along with Binaly.  If not, see <http://www.gnu.org/licenses/>.           *
  ******************************************************************************/
 
 /**
- * \file Filalyzer.hpp
+ * \file Binaly.hpp
  * \author Daniel Steinhauer
- * \brief This file contains the the main window \c Filalyzer.
+ * \brief This file contains the the main window \c Binaly.
  */
 
-#ifndef Filalyzer_H
-#define Filalyzer_H
+#ifndef Binaly_H
+#define Binaly_H
 
 #include <QMainWindow>
 #include <QWidget>
@@ -46,7 +46,7 @@
 #include "SettingsDialog.hpp"
 
 /**
- * \class Filalyzer
+ * \class Binaly
  * \brief The main window derived from QMainWindow.
  * 
  * \details The main window is splitted in three parts:
@@ -54,7 +54,7 @@
  * - The histogram with a histogram of the bytes in the current block of 1 KiB as well as a Fourier transform.
  * - The editor where the current block can be viewed and edited.
  */
-class Filalyzer : public QMainWindow
+class Binaly : public QMainWindow
 {
   Q_OBJECT
 private:
@@ -118,12 +118,12 @@ public:
    * \brief The constructor.
    * \param appSettings A pointer to the global settings.
    */
-  Filalyzer (QSettings*);
+  Binaly (QSettings*);
   
   /**
    * \brief The destructor.
    */
-  virtual ~Filalyzer ();
+  virtual ~Binaly ();
   
   /**
    * \brief Ask user whether file should be saved.
@@ -193,4 +193,4 @@ public slots:
   void nextKiB ();
 };
 
-#endif // Filalyzer_H
+#endif // Binaly_H

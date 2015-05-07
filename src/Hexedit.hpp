@@ -1,29 +1,29 @@
 /******************************************************************************
- *  Filalyzer                                                                 *
+ *  Binaly                                                                    *
  *                                                                            *
  *   (C) 2015 by Daniel Steinhauer <pik-9@users.sourceforge.net>              *
  *                                                                            *
  *                                                                            *
- *  This file is part of Filalyzer.                                           *
+ *  This file is part of Binaly.                                              *
  *                                                                            *
- *  Filalyzer is free software: you can redistribute it and/or modify         *
+ *  Binaly is free software: you can redistribute it and/or modify            *
  *  it under the terms of the GNU General Public License as published by      *
  *  the Free Software Foundation, either version 3 of the License, or         *
  *  (at your option) any later version.                                       *
  *                                                                            *
- *  Filalyzer is distributed in the hope that it will be useful,              *
+ *  Binaly is distributed in the hope that it will be useful,                 *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of            *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             *
  *  GNU General Public License for more details.                              *
  *                                                                            *
  *  You should have received a copy of the GNU General Public License         *
- *  along with Filalyzer.  If not, see <http://www.gnu.org/licenses/>.        *
+ *  along with Binaly.  If not, see <http://www.gnu.org/licenses/>.           *
  ******************************************************************************/
 
 /**
  * \file Hexedit.hpp
  * \author Daniel Steinhauer
- * \brief The widget which provides the hex editor in \c Filalyzer.
+ * \brief The widget which provides the hex editor in \c Binaly.
  */
 
 #ifndef HEXEDIT_H
@@ -137,7 +137,7 @@ public slots:
   
 signals:
   /**
-   * \brief This signal is emitted to the \c Filalyzer main window when the file has been modified.
+   * \brief This signal is emitted to the \c Binaly main window when the file has been modified.
    */
   void fileChanged ();
 };

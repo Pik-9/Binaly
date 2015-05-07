@@ -1,31 +1,31 @@
 /******************************************************************************
- *  Filalyzer                                                                 *
+ *  Binaly                                                                    *
  *                                                                            *
  *   (C) 2015 by Daniel Steinhauer <pik-9@users.sourceforge.net>              *
  *                                                                            *
  *                                                                            *
- *  This file is part of Filalyzer.                                           *
+ *  This file is part of Binaly.                                              *
  *                                                                            *
- *  Filalyzer is free software: you can redistribute it and/or modify         *
+ *  Binaly is free software: you can redistribute it and/or modify            *
  *  it under the terms of the GNU General Public License as published by      *
  *  the Free Software Foundation, either version 3 of the License, or         *
  *  (at your option) any later version.                                       *
  *                                                                            *
- *  Filalyzer is distributed in the hope that it will be useful,              *
+ *  Binaly is distributed in the hope that it will be useful,                 *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of            *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             *
  *  GNU General Public License for more details.                              *
  *                                                                            *
  *  You should have received a copy of the GNU General Public License         *
- *  along with Filalyzer.  If not, see <http://www.gnu.org/licenses/>.           *
+ *  along with Binaly.  If not, see <http://www.gnu.org/licenses/>.           *
  ******************************************************************************/
 
 /**
- * \file Filalyzer.cpp
+ * \file Binaly.cpp
  * \author Daniel Steinhauer
  */
 
-#include "Filalyzer.hpp"
+#include "Binaly.hpp"
 #include "HexFile.hpp"
 
 #include <QDesktopWidget>
@@ -34,11 +34,11 @@
 #include <QMenuBar>
 #include <QMessageBox>
 
-Filalyzer::Filalyzer (QSettings* appSettings)
+Binaly::Binaly (QSettings* appSettings)
   : QMainWindow (), filePosition (0), file (NULL), settings (appSettings), modified_file (false)
 {
   resize (1000, 800);
-  setWindowTitle (tr ("Filalyzer"));
+  setWindowTitle (tr ("Binaly"));
   QRect winrect = geometry ();
   winrect.moveCenter (QApplication::desktop ()->availableGeometry ().center ());
   setGeometry (winrect);
@@ -153,10 +153,10 @@ Filalyzer::Filalyzer (QSettings* appSettings)
   }
 }
 
-Filalyzer::~Filalyzer ()
+Binaly::~Binaly ()
 {}
 
-bool Filalyzer::askFileSave ()
+bool Binaly::askFileSave ()
 {
   QMessageBox::StandardButton reply = QMessageBox::question (
     this,
@@ -172,7 +172,7 @@ bool Filalyzer::askFileSave ()
   return ((reply == QMessageBox::Yes) || (reply == QMessageBox::No));
 }
 
-void Filalyzer::keyPressEvent (QKeyEvent* event)
+void Binaly::keyPressEvent (QKeyEvent* event)
 {
   switch (event->key ())  {
     case 81:  {
@@ -187,7 +187,7 @@ void Filalyzer::keyPressEvent (QKeyEvent* event)
   }
 }
 
-void Filalyzer::closeEvent (QCloseEvent* event)
+void Binaly::closeEvent (QCloseEvent* event)
 {
   if (modified_file)  {
     if (!askFileSave ())  {
@@ -196,7 +196,7 @@ void Filalyzer::closeEvent (QCloseEvent* event)
   }
 }
 
-void Filalyzer::changeFilePosition (uint64_t newPos)
+void Binaly::changeFilePosition (uint64_t newPos)
 {
   filePosition = newPos;
   l_pos->setText (tr ("Current position: %1").arg (BinaryBar::sizeString (filePosition)));
@@ -207,12 +207,12 @@ void Filalyzer::changeFilePosition (uint64_t newPos)
   hexw->loadData (filePosition);
 }
 
-void Filalyzer::showAboutQt ()
+void Binaly::showAboutQt ()
 {
   QMessageBox::aboutQt (this, tr ("About Qt"));
 }
 
-void Filalyzer::openFile (QString filePath)
+void Binaly::openFile (QString filePath)
 {
   bool goon = true;
   if (modified_file)  {
@@ -238,14 +238,14 @@ void Filalyzer::openFile (QString filePath)
   }
 }
 
-void Filalyzer::fileModified ()
+void Binaly::fileModified ()
 {
   modified_file = true;
   statusBar ()->showMessage (tr ("File changed."));
-  setWindowTitle (tr ("Filalyzer - %1 *").arg (path));
+  setWindowTitle (tr ("Binaly - %1 *").arg (path));
 }
 
-void Filalyzer::saveFile ()
+void Binaly::saveFile ()
 {
   try  {
     hexw->saveChanges ();
@@ -256,11 +256,11 @@ void Filalyzer::saveFile ()
   if (!file->failStatus ())  {
     modified_file = false;
     statusBar ()->showMessage (tr ("File saved to %1.").arg (path));
-    setWindowTitle (tr ("Filalyzer - %1").arg (path));
+    setWindowTitle (tr ("Binaly - %1").arg (path));
   }
 }
 
-void Filalyzer::fileLoaded ()
+void Binaly::fileLoaded ()
 {
   if (!file->failStatus ())  {
     modified_file = false;
@@ -270,7 +270,7 @@ void Filalyzer::fileLoaded ()
     fourier_hist->setFileStream (file);
     hexw->setFileStream (file);
     changeFilePosition (0);
-    setWindowTitle (tr ("Filalyzer - %1").arg (path));
+    setWindowTitle (tr ("Binaly - %1").arg (path));
   } else  {
     delete file;
     path = "";
@@ -278,7 +278,7 @@ void Filalyzer::fileLoaded ()
   }
 }
 
-void Filalyzer::error ()
+void Binaly::error ()
 {
   file->fail ();
   QMessageBox::critical (
@@ -289,14 +289,14 @@ void Filalyzer::error ()
   statusBar ()->showMessage (tr ("IO error"));
 }
 
-void Filalyzer::prevKiB ()
+void Binaly::prevKiB ()
 {
   if (filePosition >= 1023)  {
     bar->setPositionOnBar (filePosition -= 1024);
   }
 }
 
-void Filalyzer::nextKiB ()
+void Binaly::nextKiB ()
 {
   if (file)  {
     if ((file->filesize () - filePosition) >= 1024)  {

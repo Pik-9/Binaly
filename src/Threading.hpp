@@ -1,23 +1,23 @@
 /******************************************************************************
- *  Filalyzer                                                                 *
+ *  Binaly                                                                    *
  *                                                                            *
  *   (C) 2015 by Daniel Steinhauer <pik-9@users.sourceforge.net>              *
  *                                                                            *
  *                                                                            *
- *  This file is part of Filalyzer.                                           *
+ *  This file is part of Binaly.                                              *
  *                                                                            *
- *  Filalyzer is free software: you can redistribute it and/or modify         *
+ *  Binaly is free software: you can redistribute it and/or modify            *
  *  it under the terms of the GNU General Public License as published by      *
  *  the Free Software Foundation, either version 3 of the License, or         *
  *  (at your option) any later version.                                       *
  *                                                                            *
- *  Filalyzer is distributed in the hope that it will be useful,              *
+ *  Binaly is distributed in the hope that it will be useful,                 *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of            *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             *
  *  GNU General Public License for more details.                              *
  *                                                                            *
  *  You should have received a copy of the GNU General Public License         *
- *  along with Filalyzer.  If not, see <http://www.gnu.org/licenses/>.        *
+ *  along with Binaly.  If not, see <http://www.gnu.org/licenses/>.           *
  ******************************************************************************/
 
 /**
@@ -35,7 +35,7 @@
 
 /**
  * \class BackGroundWorker
- * \brief A thread class that does the data loading for a \c Hexfile and emits signals to \c Filalyzer.
+ * \brief A thread class that does the data loading for a \c Hexfile and emits signals to \c Binaly.
  */
 class BackGroundWorker : public QThread
 {
@@ -71,7 +71,7 @@ public:
   
 signals:
   /**
-   * \brief This signal is emitted to \c Filalyzer when an \c EFileException occured.
+   * \brief This signal is emitted to \c Binaly when an \c EFileException occured.
    */
   void errorOccured ();
 };

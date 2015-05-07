@@ -1,23 +1,23 @@
 /******************************************************************************
- *  Filalyzer                                                                 *
+ *  Binaly                                                                    *
  *                                                                            *
  *   (C) 2015 by Daniel Steinhauer <pik-9@users.sourceforge.net>              *
  *                                                                            *
  *                                                                            *
- *  This file is part of Filalyzer.                                           *
+ *  This file is part of Binaly.                                              *
  *                                                                            *
- *  Filalyzer is free software: you can redistribute it and/or modify         *
+ *  Binaly is free software: you can redistribute it and/or modify            *
  *  it under the terms of the GNU General Public License as published by      *
  *  the Free Software Foundation, either version 3 of the License, or         *
  *  (at your option) any later version.                                       *
  *                                                                            *
- *  Filalyzer is distributed in the hope that it will be useful,              *
+ *  Binaly is distributed in the hope that it will be useful,                 *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of            *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             *
  *  GNU General Public License for more details.                              *
  *                                                                            *
  *  You should have received a copy of the GNU General Public License         *
- *  along with Filalyzer.  If not, see <http://www.gnu.org/licenses/>.           *
+ *  along with Binaly.  If not, see <http://www.gnu.org/licenses/>.           *
  ******************************************************************************/
 
 /**
@@ -29,21 +29,21 @@
 #include <QSettings>
 #include <QTranslator>
 
-#include "Filalyzer.hpp"
+#include "Binaly.hpp"
 
 int main (int argc, char *argv[])
 {
   QApplication app (argc, argv);
-  QSettings *appSettings = new QSettings ("Pik-9", "Filalyzer");
+  QSettings *appSettings = new QSettings ("Pik-9", "Binaly");
   QTranslator *appTrans = new QTranslator ();
   
   appSettings->beginGroup ("Language");
   QString ccode = appSettings->value ("Countrycode", "en").toString ();
   appSettings->endGroup ();
-  appTrans->load (QString ("Filalyzer_%1").arg (ccode), "/usr/local/share/Filalyzer");
+  appTrans->load (QString ("Binaly_%1").arg (ccode), "/usr/local/share/Binaly");
   app.installTranslator (appTrans);
   
-  Filalyzer *filalyzer = new Filalyzer (appSettings);
+  Binaly *filalyzer = new Binaly (appSettings);
   filalyzer->show ();
   return app.exec ();
 }
