@@ -53,9 +53,9 @@ Filalyzer::Filalyzer (QSettings* appSettings)
   );
   
   filemenu = new QMenu (tr ("&File"), this);
-  filemenu->addAction (tr ("&Open"), fdia, SLOT (show ()), tr ("CTRL+O"));
-  filemenu->addAction (tr ("&Save"), this, SLOT (saveFile ()), tr ("CTRL+S"));
-  filemenu->addAction (tr ("&Quit"), this, SLOT (close ()), tr ("CTRL+Q"));
+  filemenu->addAction (tr ("&Open"), fdia, SLOT (show ()), QKeySequence ("CTRL+O"));
+  filemenu->addAction (tr ("&Save"), this, SLOT (saveFile ()), QKeySequence ("CTRL+S"));
+  filemenu->addAction (tr ("&Quit"), this, SLOT (close ()), QKeySequence ("CTRL+Q"));
   menuBar ()->addMenu (filemenu);
   
   settingsmenu = new QMenu (tr ("S&ettings"), this);

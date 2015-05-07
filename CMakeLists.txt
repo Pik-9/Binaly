@@ -15,14 +15,23 @@ set(Filalyzer_SRCS
   src/SettingsDialog.cpp
 )
 
+set(Lang_FILES
+  lang/Filalyzer_de.ts
+)
+
 find_package(Qt5Widgets)
-add_executable(${PROJECT_NAME} ${Filalyzer_SRCS})
 if(${Qt5Widgets_FOUND})
+  find_package(Qt5LinguistTools)
+  qt5_add_translation(TRANS_BIN ${Lang_FILES})
+  add_executable(${PROJECT_NAME} ${Filalyzer_SRCS} ${TRANS_BIN})
   qt5_use_modules(${PROJECT_NAME} Widgets)
 else(${Qt5Widgets_FOUND})
   find_package(Qt4 REQUIRED)
+  qt4_add_translation(TRANS_BIN ${Lang_FILES})
+  add_executable(${PROJECT_NAME} ${Filalyzer_SRCS} ${TRANS_BIN})
   include(${QT_USE_FILE})
   target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
 endif(${Qt5Widgets_FOUND})
 
 install(TARGETS filalyzer RUNTIME DESTINATION bin)
+install(FILES ${TRANS_BIN} DESTINATION share/Filalyzer)
