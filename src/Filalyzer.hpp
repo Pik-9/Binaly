@@ -1,3 +1,9 @@
+/**
+ * \file Filalyzer.hpp
+ * \author Daniel Steinhauer
+ * \brief This file contains the the main window \c Filalyzer.
+ */
+
 #ifndef Filalyzer_H
 #define Filalyzer_H
 
@@ -17,22 +23,53 @@
 #include "Threading.hpp"
 #include "SettingsDialog.hpp"
 
+/**
+ * \class Filalyzer
+ * \brief The main window derived from QMainWindow.
+ * 
+ * \details The main window is splitted in three parts:
+ * - The binary bar where the whole file is shown on a colorful stripe.
+ * - The histogram with a histogram of the bytes in the current block of 1 KiB as well as a Fourier transform.
+ * - The editor where the current block can be viewed and edited.
+ */
 class Filalyzer : public QMainWindow
 {
   Q_OBJECT
 private:
+  /**
+   * \brief The global settings for this application.
+   */
   QSettings *settings;
   
-  /* The current position in the file. */
+  /**
+   * \brief The current position in the file.
+   */
   uint64_t filePosition;
+  
+  /**
+   * \brief Whether the file has been modified in the editor.
+   */
   bool modified_file;
   
-  /* The file stream to analyze. */
+  /**
+   * \brief The file stream to analyze.
+   */
   Hexfile *file;
   QString path;
+  
+  /**
+   * \brief The \c BackGroundWorker thread which loads the file in the background.
+   */
   BackGroundWorker *streamLoader;
   
+  /**
+   * \brief The file dialog the user can open files with.
+   */
   QFileDialog *fdia;
+  
+  /**
+   * \brief A \c SettingsDialog where the user can make global settings.
+   */
   SettingsDialog *setDia;
   
   QMenu *filemenu, *settingsmenu;
@@ -55,7 +92,15 @@ private:
   /* The hexedit widget */
   HexWidget *hexw;
 public:
+  /**
+   * \brief The constructor.
+   * \param appSettings A pointer to the global settings.
+   */
   Filalyzer (QSettings*);
+  
+  /**
+   * \brief The destructor.
+   */
   virtual ~Filalyzer ();
   
   /**
@@ -65,17 +110,59 @@ public:
   bool askFileSave ();
   
 protected:
+  /**
+   * \brief React to user's key press.
+   * 
+   * User can navigate through file with [Q] and [W].
+   */
   void keyPressEvent (QKeyEvent*);
+  
+  /**
+   * \brief Ask user whether to save file before closing, if file has been modified.
+   */
   void closeEvent (QCloseEvent*);
   
 public slots:
+  /**
+   * \brief Pick another KiB in file.
+   * \param newPos The new position in file.
+   */
   void changeFilePosition (uint64_t);
+  
+  /**
+   * \brief Open a file.
+   * \param filePath The file path to open.
+   */
   void openFile (QString);
+  
+  /**
+   * \brief This slot is called, when the file has been edited.
+   */
   void fileModified ();
+  
+  /**
+   * \brief Write the changes to file.
+   */
   void saveFile ();
+  
+  /**
+   * \brief This slot is called by the \c streamLoader when the file is loaded.
+   */
   void fileLoaded ();
+  
+  /**
+   * \brief This slot is called when an \c EFileException has been caught.
+   */
   void error ();
+  
+  /**
+   * \brief Pick next KiB in file.
+   */
   void prevKiB ();
+  
+  /**
+   * \brief Pick previous KiB in file.
+   */
   void nextKiB ();
 };
 
