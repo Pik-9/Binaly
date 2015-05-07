@@ -94,7 +94,7 @@ private:
    */
   SettingsDialog *setDia;
   
-  QMenu *filemenu, *settingsmenu;
+  QMenu *filemenu, *settingsmenu, *helpmenu;
   
   QSplitter *sp_main, *sp_sub;
   
@@ -150,6 +150,11 @@ public slots:
    * \param newPos The new position in file.
    */
   void changeFilePosition (uint64_t);
+  
+  /**
+   * \brief Show the about Qt dialog.
+   */
+  void showAboutQt ();
   
   /**
    * \brief Open a file.

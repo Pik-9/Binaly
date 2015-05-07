@@ -62,6 +62,10 @@ Filalyzer::Filalyzer (QSettings* appSettings)
   settingsmenu->addAction (tr ("Settings"), setDia, SLOT (show ()));
   menuBar ()->addMenu (settingsmenu);
   
+  helpmenu = new QMenu (tr ("&Help"), this);
+  helpmenu->addAction (tr ("About Qt"), this, SLOT (showAboutQt ()));
+  menuBar ()->addMenu (helpmenu);
+  
   sp_main = new QSplitter (Qt::Vertical);
   sp_sub = new QSplitter (Qt::Horizontal);
   
@@ -201,6 +205,11 @@ void Filalyzer::changeFilePosition (uint64_t newPos)
   dev_hist->loadData (filePosition);
   fourier_hist->loadData (filePosition);
   hexw->loadData (filePosition);
+}
+
+void Filalyzer::showAboutQt ()
+{
+  QMessageBox::aboutQt (this, tr ("About Qt"));
 }
 
 void Filalyzer::openFile (QString filePath)
