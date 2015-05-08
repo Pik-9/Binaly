@@ -39,6 +39,7 @@ Binaly::Binaly (QSettings* appSettings)
 {
   resize (1000, 800);
   setWindowTitle (tr ("Binaly"));
+  setWindowIcon (QIcon ("/usr/local/share/Binaly/Binaly.png"));
   QRect winrect = geometry ();
   winrect.moveCenter (QApplication::desktop ()->availableGeometry ().center ());
   setGeometry (winrect);

@@ -35,3 +35,4 @@ endif(${Qt5Widgets_FOUND})
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES ${TRANS_BIN} DESTINATION share/Binaly)
+install(FILES icon/Binaly.png DESTINATION share/Binaly)
