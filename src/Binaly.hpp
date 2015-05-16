@@ -44,6 +44,7 @@
 #include "Hexedit.hpp"
 #include "Threading.hpp"
 #include "SettingsDialog.hpp"
+#include "About.hpp"
 
 /**
  * \class Binaly
@@ -93,8 +94,10 @@ private:
    * \brief A \c SettingsDialog where the user can make global settings.
    */
   SettingsDialog *setDia;
+  AboutDialog *aboutDia;
   
   QMenu *filemenu, *settingsmenu, *helpmenu;
+  QAction *saveAction;
   
   QSplitter *sp_main, *sp_sub;
   

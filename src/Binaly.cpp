@@ -46,6 +46,7 @@ Binaly::Binaly (QSettings* appSettings)
   
   streamLoader = new BackGroundWorker ();
   setDia = new SettingsDialog (settings);
+  aboutDia = new AboutDialog ();
   
   fdia = new QFileDialog (
     this,
@@ -55,15 +56,18 @@ Binaly::Binaly (QSettings* appSettings)
   
   filemenu = new QMenu (tr ("&File"), this);
   filemenu->addAction (tr ("&Open"), fdia, SLOT (show ()), QKeySequence ("CTRL+O"));
-  filemenu->addAction (tr ("&Save"), this, SLOT (saveFile ()), QKeySequence ("CTRL+S"));
+  saveAction = filemenu->addAction (tr ("&Save"), this, SLOT (saveFile ()), QKeySequence ("CTRL+S"));
   filemenu->addAction (tr ("&Quit"), this, SLOT (close ()), QKeySequence ("CTRL+Q"));
   menuBar ()->addMenu (filemenu);
+  
+  saveAction->setEnabled (false);
   
   settingsmenu = new QMenu (tr ("S&ettings"), this);
   settingsmenu->addAction (tr ("Settings"), setDia, SLOT (show ()));
   menuBar ()->addMenu (settingsmenu);
   
   helpmenu = new QMenu (tr ("&Help"), this);
+  helpmenu->addAction (tr ("About Binaly"), aboutDia, SLOT (show ()));
   helpmenu->addAction (tr ("About Qt"), this, SLOT (showAboutQt ()));
   menuBar ()->addMenu (helpmenu);
   
@@ -244,6 +248,7 @@ void Binaly::fileModified ()
   modified_file = true;
   statusBar ()->showMessage (tr ("File changed."));
   setWindowTitle (tr ("Binaly - %1 *").arg (path));
+  saveAction->setEnabled (true);
 }
 
 void Binaly::saveFile ()
@@ -258,6 +263,7 @@ void Binaly::saveFile ()
     modified_file = false;
     statusBar ()->showMessage (tr ("File saved to %1.").arg (path));
     setWindowTitle (tr ("Binaly - %1").arg (path));
+    saveAction->setEnabled (false);
   }
 }
 

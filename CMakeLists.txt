@@ -13,6 +13,7 @@ set(Binaly_SRCS
   src/Hexedit.cpp
   src/Threading.cpp
   src/SettingsDialog.cpp
+  src/About.cpp
 )
 
 set(Lang_FILES

@@ -82,7 +82,7 @@ SettingsDialog::SettingsDialog (QSettings* appSettings, QWidget* parent)
   : QWidget (parent), settings (appSettings)
 {
   resize (300, 500);
-  setWindowTitle (tr ("Hexalizer - Settings"));
+  setWindowTitle (tr ("Binaly - Settings"));
   setWindowIcon (QIcon ("/usr/local/share/Binaly/Binaly.png"));
   QRect winrect = geometry ();
   winrect.moveCenter (QApplication::desktop ()->availableGeometry ().center ());
